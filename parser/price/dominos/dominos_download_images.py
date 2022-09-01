@@ -17,7 +17,7 @@ import os
 
 from urllib.request import Request, urlopen
 
-files = [i for i in os.listdir('.') if '.xlsx' in i and 'dominos_price' in i]
+files = [i for i in os.listdir('..') if '.xlsx' in i and 'dominos_price' in i]
 print(files)
 print(len(files))
 

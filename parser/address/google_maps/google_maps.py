@@ -11,7 +11,6 @@ from selenium.webdriver.chrome.service import Service
 from multiprocessing import Pool
 import numpy as np
 import pandas as pd
-from tabulate import tabulate
 from datetime import datetime
 import re
 
