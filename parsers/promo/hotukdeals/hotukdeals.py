@@ -1,12 +1,9 @@
 import time
 
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
-
-from datetime import datetime
-import pandas as pd
 
 import setting
 from database.database import DataBase
@@ -32,7 +29,7 @@ class HotukdealsParser():
         #   {...},
         #   ...
         # ]
-        self.voucher_codes_cards_data = []
+        self.voucher_codes_cards_data = self.get_voucher_codes_cards()
         # [
         #   {
         #       'image':
@@ -49,29 +46,41 @@ class HotukdealsParser():
         #   {...},
         #   ...
         # ]
-        self.deals_cards_data = []
+        self.deals_cards_data = self.get_deals_cards()
+        self.to_stg_db()
+
+        self.driver.close()
+        self.driver.quit()
+
+
     def click_accept(self):
         try:
             self.driver.find_element(By.XPATH, '//*[contains(text(), "Accept")]').click()
-            time.sleep(1)
+            time.sleep(2)
         except:
             pass
 
     def click_voucher_codes(self):
         # $x('(//button[contains(text(),"Voucher Codes")])[1]')
+        self.driver.find_element(By.XPATH, '(//button[contains(text(),"Voucher Codes")])[1]').click()
         pass
 
     def click_deals(self):
         # $x('(//button[contains(text(),"Deals")])[1]')
+        self.driver.find_element(By.XPATH, '(//button[contains(text(),"Deals")])[1]').click()
         pass
 
     def get_voucher_codes_cards(self):
         # $x('//article[contains(@class, "voucher")]')
-        pass
+        list_cards = [i.get_attribute('innerHTML') for i in self.driver.find_elements(By.XPATH, '//article[contains(@class, "voucher")]')]
+        return pd.DataFrame({'voucher_codes_card': list_cards})
+
 
     def get_deals_cards(self):
         # $x('//article[contains(@class, "deal")]')
-        pass
+        list_cards = [i.get_attribute('innerHTML') for i in
+                      self.driver.find_elements(By.XPATH, '//article[contains(@class, "deal")]')]
+        return pd.DataFrame({'deals_card': list_cards})
 
 
     def get_voucher_codes_page(self):
@@ -101,4 +110,6 @@ class HotukdealsParser():
         return driver
 
     def to_stg_db(self):
-        DataBase().create_stg_table(data_frame= df, name_stg_table='STG_HOTUKDEALS_BURGERKING')
+        # DataBase().create_stg_table(data_frame= self.get_deals_cards, name_stg_table='STG_HOTUKDEALS_BURGERKING')
+        print(type(self.deals_cards_data))
+        DataBase().create_stg_table(data_frame= self.deals_cards_data, name_stg_table='STG_HOTUKDEALS_BURGERKING_DEALS_CARDS')

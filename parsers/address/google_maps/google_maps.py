@@ -1,3 +1,4 @@
+import os
 import time
 from typing import Dict, Union, Any
 
@@ -11,6 +12,7 @@ from selenium.webdriver.chrome.service import Service
 from multiprocessing import Pool
 import numpy as np
 import pandas as pd
+from tabulate import tabulate
 from datetime import datetime
 import re
 
@@ -44,16 +46,18 @@ class ParseGoogle():
         self.drive_through = None
         self.dine_in = None
         self.dine_in = None
+        self.temporarily_closed = None
         # не ну мало ли заглюк, гет вернет строку с None
         try:
             options = Options()
             # options.add_argument("--headless")
             # options.add_argument("--disable-extensions")
             options.add_argument("--lang=en-nz")
-            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.41 Safari/537.36")
+            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36")
             path = r'chromedriver.exe'
             self.driver = webdriver.Chrome(chrome_options=options, executable_path=path)
             self.driver.get(url=self.url)
+            time.sleep(2)
             self.run()
             self.driver.close()
             self.driver.quit()
@@ -567,19 +571,10 @@ class ParseGoogle():
         pass
 
     # $x('//span[contains(text(), "Temporarily closed")]')
-    def temporarily_closed(self):
+    def get_temporarily_closed(self):
         try:
-            return bool(self.driver.find_element(By.XPATH,
-                                            '//span[contains(text(), "Temporarily closed")]'))
-        except Exception:
-            return "NotFound"
-
-
-    # $x('//span[contains(text(), "Temporarily closed")]')
-    def permanently_closed(self):
-        try:
-            return bool(self.driver.find_element(By.XPATH,
-                                            '//span[contains(text(), "Permanently closed")]'))
+            return bool([i.text for i in self.driver.find_elements(By.XPATH,
+                                            '//span[contains(text(), "Temporarily closed")]')])
         except Exception:
             return "NotFound"
 
@@ -600,6 +595,8 @@ class ParseGoogle():
         print(f"plus_code: {self.plus_code}")
         self.time_work_days = self.get_time_work_days()
         print(f"time_work_days: {self.time_work_days}")
+        self.temporarily_closed = self.get_temporarily_closed()
+        print(f"temporarily_closed: {self.temporarily_closed}")
         # добавить выключить попап
         # self.delivery_sites = self.get_delivery_sites()
         # print(f"delivery_sites: {self.delivery_sites}")
@@ -633,8 +630,9 @@ class ParseGoogle():
         print(f"time_interval: {self.time_interval}")
         self.geo_lat_long = self.get_geo_lat_long()
         print(f"geo_lat_long: {self.geo_lat_long}")
-        self.temporarily_closed = self.temporarily_closed()
-        print(f"temporarily_closed: {self.temporarily_closed}")
+
+
+
 
     def get(self):
     # Для некоторых данных возможно потребуется предподготовка
@@ -687,7 +685,7 @@ class ParseGoogle():
                             'Saturday delta': [self.time_interval["Saturday"]],
                             'Sunday delta': [self.time_interval["Sunday"]],
                             'url': [self.url],
-                            'Permanently closed': [],
+                            'Temporarily closed': [self.temporarily_closed],
                              })
 
 
@@ -710,7 +708,8 @@ def parse(file_name):
         print(file_name)
         for i in file_name:
             temp_pd_df = []
-            urls = [j for j in pd.read_excel(f"{i}")["source"]]
+            urls = [j for j in pd.read_excel(f"{i}")["Source"]]
+            print(urls)
             for url in urls:
                 try:
                     print(url)
@@ -762,19 +761,19 @@ def parse(file_name):
                                                     'Saturday delta': ["NotFound"],
                                                     'Sunday delta': ["NotFound"],
                                                     'url': [url],
-                                                    'Permanently closed': ["NotFound"],
+                                                    'Temporarily closed': ["NotFound"],
                                                      }))
                 finally:
                     continue
             pd.concat(temp_pd_df).to_excel(f"{i[:-5]} result.xlsx")
         return None
-    except:
+    except ValueError as ex:
+        print(ex)
         return None
-if __name__ == '__main__':
-    file_name = [ 'doparsit.xlsx',]
 
-    a = [[i] for i in file_name]
+def start_parser():
+    slice
 
-    with Pool(processes=1) as p:
+    with Pool(processes=6) as p:
         p.map(parse, a)
 

@@ -1,20 +1,25 @@
 import pymysql
 import pandas as pd
+from sqlalchemy import create_engine
 
-from ..setting import DATABASES
+from setting import DATABASES
+
 
 
 
 class DataBase():
 
     def __init__(self):
-        self.connect_db = pymysql.connect({
-                                            **DATABASES,
-                                           'cursorclass': pymysql.cursors.DictCursor
-                                           })
+        # self.connect_db = pymysql.connect(
+        #                                     **DATABASES,
+        #                                     cursorclass = pymysql.cursors.DictCursor,
+        #                                  )
 
-
-
+        user = DATABASES['user']
+        password = DATABASES['password']
+        host = DATABASES['host']
+        database = DATABASES['database']
+        self.connect_db = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')  # fill details
 
     def connect(self):
          pass
@@ -26,5 +31,4 @@ class DataBase():
 
 
     def create_stg_table(self, data_frame: pd.DataFrame, name_stg_table: str):
-        with self.connect_db:
-            data_frame.to_sql(name_stg_table,  self.connect_db, schema=None, if_exists='append')
+        data_frame.to_sql(name_stg_table, self.connect_db, if_exists='append', index=False)
