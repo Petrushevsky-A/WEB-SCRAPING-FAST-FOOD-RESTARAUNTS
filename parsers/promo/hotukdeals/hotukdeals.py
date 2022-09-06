@@ -74,18 +74,6 @@ class HotukdealsParser():
                 return element.__getattribute__(method)(method_arguments)
             if method:
                 return element.__getattribute__(method)
-
-
-
-            # match method:
-            #     case method:
-            #         pass
-            #     case f'{method}()', method_arguments:
-            #         return element.__getattribute__(method)
-            #     case f'{method}()':
-            #         return element.__getattribute__(method)(method_arguments)
-
-
         except Exception as ex:
             print(ex)
             return 'Not faund'
@@ -93,7 +81,6 @@ class HotukdealsParser():
 
     def finds(self, xpath, attribute = None, method= None, method_arguments = None):
         try:
-
             elements = self.driver.find_elements(By.XPATH, xpath)
             if attribute:
                 return [i.__getattribute__(attribute) for i in elements]
@@ -133,14 +120,31 @@ class HotukdealsParser():
 
 
     def get_voucher_codes_page(self, urls: list):
+        # $x('//div[contains(@class, "cept-thread-content")]//img')
         list_image = self.finds()
-        head = self.find()
-        price = self.find()
+        # $x('//h1')
+        head = self.find('//h1', 'text')
+        # $x('//span[contains(@class, "thread-price")]/span[contains(text(), "£")]')
+        price = self.find('//span[contains(@class, "thread-price")]/span[contains(text(), "£")]', 'text')
+        # $x('//span[contains(@class, "brandPrimary  ")]')
         brand = self.find()
+        # $x('//span[contains(@class, "cept-vote-temp")]')
         vote = self.find()
+        # $x('//div[contains(@class, "orangePale")]')
         date = self.find()
-        date_update = self.find()
+
+        # $x('//div[contains(@class, "cept-thread-content")]')
         content = self.finds()
+        data = {
+            'list_image': list_image,
+            'head': head,
+            'price': price,
+            'brand': brand,
+            'vote': vote,
+            'date': date,
+            'content': content,
+        }
+        return pd.DataFrame(data)
 
     def save_image(self):
         pass
@@ -182,3 +186,4 @@ class HotukdealsParser():
         # $x('//button[contains(text(), "Log In")]')
         self.driver.find_element(By.XPATH, '//button[contains(text(), "Log In")]').click()
         pass
+
