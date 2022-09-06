@@ -30,9 +30,10 @@ class HotukdealsParser():
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.driver.close()
-        self.driver.quit()
-        return True
+        pass
+    #     self.driver.close()
+    #     self.driver.quit()
+    #     return True
 
     def click_accept(self):
         try:
@@ -73,7 +74,7 @@ class HotukdealsParser():
             if method and method_arguments:
                 return element.__getattribute__(method)(method_arguments)
             if method:
-                return element.__getattribute__(method)
+                return element.__getattribute__(method)()
         except Exception as ex:
             print(ex)
             return 'Not faund'
@@ -87,14 +88,15 @@ class HotukdealsParser():
             if method and method_arguments:
                 return [i.__getattribute__(method)(method_arguments) for i in elements]
             if method:
-                return [i.__getattribute__(method) for i in elements]
+                return [i.__getattribute__(method)() for i in elements]
         except Exception as ex:
             print(ex)
             return ['Not faund', ]
 
     def get_deals_page(self):
+
         # $x('//div[contains(@class,  "thread--deal")]//img')
-        list_image = self.finds('//div[contains(@class,  "thread--deal")]//img', method='get_attribute', method_arguments='src')
+        list_image = ' '.join(self.finds('//div[contains(@class,  "thread--deal")]//img', method='get_attribute', method_arguments='src'))
         # $x('//h1')
         head = self.find('//h1', attribute='text')
         # $x('//div[contains(@id,"thread")]//span[contains(@class,  "price")]')
@@ -108,33 +110,37 @@ class HotukdealsParser():
         # # $x('//div[contains(@class,"cept-thread-content")]//div[contains(@class,  "threadUpdate")]').map(i=>i.textContent)
         date_update = self.find('//div[contains(@class,"cept-thread-content")]//div[contains(@class,  "threadUpdate")]', 'text')
         # # $x('//div[contains(@class,"cept-thread-content")]//div[contains(@class,  "content ")]').map(i=>i.textContent)
-        content = self.finds('//div[contains(@class,"cept-thread-content")]//div[contains(@class,  "content ")]', 'text')
-        print(f'list_image {list_image}')
-        print(f'head {head}')
-        print(f'price {price}')
-        print(f'brand {brand}')
-        print(f'vote {vote}')
-        print(f'date {date}')
-        print(f'date_update {date_update}')
-        print(f'content {content}')
+        content = ' '.join(self.finds('//div[contains(@class,"cept-thread-content")]//div[contains(@class,  "content ")]', 'text'))
+        data = {
+            'list_image':list_image,
+            'head':head,
+            'price':price,
+            'brand':brand,
+            'vote':vote,
+            'date':date,
+            'date_update':date_update,
+            'content':content,
+        }
+        return pd.DataFrame([data])
 
 
-    def get_voucher_codes_page(self, urls: list):
+    def get_voucher_codes_page(self):
         # $x('//div[contains(@class, "cept-thread-content")]//img')
-        list_image = self.finds()
-        # $x('//h1')
+        list_image = ' '.join(self.finds('//div[contains(@class, "cept-thread-content")]//img', method='get_attribute', method_arguments='src'))
+        # # $x('//h1')
         head = self.find('//h1', 'text')
         # $x('//span[contains(@class, "thread-price")]/span[contains(text(), "£")]')
         price = self.find('//span[contains(@class, "thread-price")]/span[contains(text(), "£")]', 'text')
         # $x('//span[contains(@class, "brandPrimary  ")]')
-        brand = self.find()
+        brand = self.find('//span[contains(@class, "brandPrimary  ")]', 'text')
         # $x('//span[contains(@class, "cept-vote-temp")]')
-        vote = self.find()
+        vote = self.find('//span[contains(@class, "cept-vote-temp")]', 'text')
         # $x('//div[contains(@class, "orangePale")]')
-        date = self.find()
+        date = self.find('//div[contains(@class, "orangePale")]', 'text')
 
         # $x('//div[contains(@class, "cept-thread-content")]')
-        content = self.finds()
+        content = ' '.join(self.finds('//div[contains(@class, "cept-thread-content")]', 'text'))
+
         data = {
             'list_image': list_image,
             'head': head,
@@ -144,7 +150,7 @@ class HotukdealsParser():
             'date': date,
             'content': content,
         }
-        return pd.DataFrame(data)
+        return pd.DataFrame([data])
 
     def save_image(self):
         pass
@@ -158,9 +164,12 @@ class HotukdealsParser():
         driver = webdriver.Chrome(chrome_options=options, executable_path=path)
         return driver
 
-    def open_url(self):
+    def open_url(self, url=None):
         time.sleep(2)
-        self.driver.get(url=self.url)
+        if url:
+            self.driver.get(url=url)
+        else:
+            self.driver.get(url=self.url)
         time.sleep(5)
 
 
@@ -187,3 +196,17 @@ class HotukdealsParser():
         self.driver.find_element(By.XPATH, '//button[contains(text(), "Log In")]').click()
         pass
 
+
+    def see_more_voucher_codes_page(self):
+        # $x('//*[contains(text(), "See More")]')
+        # $x('//button[@data-t="seeMoreVouchersButton"]')
+        # $x('//button[@data-t="seeMoreDealsButton"]')
+        # self.driver.execute_script("arguments[0].scrollIntoView();", self.driver.find_element('//button[@data-t="seeMoreVouchersButton"]'))
+        self.find('//button[@data-t="seeMoreVouchersButton"]', method='click')
+
+    def see_more_deals_cards_page(self):
+        # $x('//*[contains(text(), "See More")]')
+        # $x('//button[@data-t="seeMoreVouchersButton"]')
+        # $x('//button[@data-t="seeMoreDealsButton"]')
+        # self.driver.execute_script("arguments[0].scrollIntoView();", self.driver.find_element('//button[@data-t="seeMoreVouchersButton"]'))
+        self.find('//button[@data-t="seeMoreDealsButton"]', method='click')
