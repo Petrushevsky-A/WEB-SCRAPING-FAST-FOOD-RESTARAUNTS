@@ -30,13 +30,34 @@ class HotukdealsCleaner():
 
     def find(self,xpath, attribute = None, method = None, method_arguments = None, attribute_index = None):
         try:
-            print(f'locals {locals()}')
             tree = html.fromstring(self.data_html)
             elements = tree.xpath(xpath)
-            match locals():
-                case {'xpath': xpath, 'attribute': attribute, 'attribute_index': attribute_index, 'method': method ,'method_arguments':method_arguments}:
-                    pass
 
+            # # python 3.10
+            # match locals():
+            #     case {'attribute': attribute,'attribute_index': attribute_index} if not attribute_index == None:
+            #         return [i.__getattribute__(attribute)[attribute_index] for i in elements]
+            #     case {'attribute': attribute}:
+            #         return [i.__getattribute__(attribute) for i in elements]
+            #     case {'method': method ,'method_arguments':method_arguments} if not method_arguments == None:
+            #         return [i.__getattribute__(method)(method_arguments) for i in elements]
+            #     case {'method': method }:
+            #         return [i.__getattribute__(method)() for i in elements]
+
+            # pattern = {k: v for k, v in locals().values() if not v == None}
+            pattern = [k for k, v  in locals().items() if not v==None]
+            # python 3.10 вариант 2
+            match pattern:
+                case [*t, 'attribute', 'attribute_index']:
+                    return [i.__getattribute__(attribute)[attribute_index] for i in elements]
+                case [*t, 'attribute', ]:
+                    return [i.__getattribute__(attribute) for i in elements]
+                case [*t, 'method', 'method_arguments']:
+                    return [i.__getattribute__(method)(method_arguments) for i in elements]
+                case [*t, 'method', ]:
+                    return [i.__getattribute__(method)() for i in elements]
+
+            # # python 3.9
             # if attribute and attribute_index:
             #     return [i.__getattribute__(attribute)[attribute_index] for i in elements]
             # if attribute:

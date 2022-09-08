@@ -10,7 +10,8 @@ class HotukdealsController():
     def __init__(self):
         # self.start_parse()
         print(self.get_urls_voucher_codes_page())
-        print(self.get_urls_deals_cards_page())
+        print(len(self.get_urls_voucher_codes_page()))
+        # print(self.get_urls_deals_cards_page())
         # self.parsed_deals_cards_page()
         # self.parsed_voucher_codes_page()
 
