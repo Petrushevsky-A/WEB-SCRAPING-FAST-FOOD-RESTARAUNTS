@@ -1,16 +1,17 @@
-import time
-import itertools
-
-import six
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
-from datetime import datetime
-import pandas as pd
-import numpy as np
-from lxml import etree
+
 from multiprocessing import Pool
+
+from datetime import datetime
+from lxml import etree
+import pandas as pd
+import time
+
+
+from database.database import DataBase
 
 
 class Card_promo():
@@ -30,7 +31,6 @@ class Card_promo():
 
     def get_logo_image(self):
         try:
-            # '//div[@data-test-id="restaurant_logo"]/img'
             img_tag = self.html.xpath('//img[@data-test-id="restaurant_logo"]')
             href = img_tag[0].get('src').strip()
             return href
@@ -49,8 +49,6 @@ class Card_promo():
     def get_category_foods(self):
         try:
             tag = self.html.xpath('//*[@data-test-id="restaurant-cuisines"]/li')
-            # return tag[0].text.strip()
-            # return ", ".join([i.text.strip() for i in etree.HTML(etree.tostring(tag[0], encoding='unicode').replace('<span class="c-badge-icon"/>', '</p>; <p>')).xpath('//p')])
             return ", ".join([i.text for i in tag])
         except:
             return 'not found'
@@ -76,7 +74,6 @@ class Card_promo():
                 tag_delivery = self.html.xpath('//div[@data-test-id="restaurant-delivery-fees"]/p/span[2]')
             except:
                 tag_delivery = ['Not found']
-            # return [i.text.strip() for i in etree.HTML(etree.tostring(tag[0], encoding='unicode').replace('<span class="c-badge-icon"/>', '</p>; <p>')).xpath('//p')]
             try:
                 tag_min_order = self.html.xpath('//p[@data-test-id="restaurant-fees-min-order"]/span')
             except:
@@ -110,18 +107,7 @@ class Card_promo():
                 tag_opening = self.html.xpath('//*[@data-test-id="restaurant-availability-message"]')
             except:
                 tag_opening = ['Not found']
-            # return [i.text.strip() for i in etree.HTML(etree.tostring(tag[0], encoding='unicode').replace('</strong>', '').replace('<strong style="color: rgb(205, 57, 12);">', '').replace('<strong style="color: rgb(38, 106, 189);">', '').replace('<span class="c-badge-icon"/>', '</p>; <p>')).xpath('//p')]
-            # return etree.tostring(tag[0], method="text")
-            # return etree.tostring(tag[0], encoding='unicode')
-            # tag = etree.tostring(tag[0], encoding='unicode').replace('<span class="c-badge-icon"/>', '  ;  ')
-            # tag = etree.HTML(tag)
-            # tag = [i.strip() for i in str(etree.tostring(tag, method="text"))[2:-2].replace(r'\n','').split(';')]
 
-            # tag = [etree.HTML(i) for i in tag]
-            # tag = [i.text for i in tag]
-            # print(type(tag))
-
-            # tag = self.html.xpath('//div[@data-test-id="restaurant-times"]//p/strong')
             return [tag_type[0].text, tag_opening[0].text]
         except:
             return ["not found", "not found"]
@@ -250,8 +236,6 @@ def set_post_code(post_code, driver):
 
 def run_browser():
     options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
     options.add_argument("--start-maximized")
     options.add_argument("--lang=en-nz")
     options.add_argument(
@@ -287,13 +271,12 @@ def parse(arg):
 
     data = [pd.DataFrame([i]) for i in data]
 
-    data = pd.concat(data)
-    date = datetime.now().strftime("%d.%m.%Y")
-    pd.DataFrame(data).to_excel(f'just_eats_{post_code}_{str(date)}.xlsx')
+    data_frame = pd.concat(data)
+    # date = datetime.now().strftime("%d.%m.%Y")
+    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_JUST_EATS_PROMO')
 
 
-
-if __name__ == '__main__':
+def start_just_eats_promo():
     post_codes = [
         'W1C 1LX',
         'CF10 1PN',
@@ -316,7 +299,7 @@ if __name__ == '__main__':
         'Manchester'
     ]
 
-    with Pool(processes=10) as p:
+    with Pool(processes=5) as p:
         p.map(parse, zip(post_codes,city))
 
 

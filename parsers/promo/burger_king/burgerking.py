@@ -11,6 +11,7 @@ import numpy as np
 
 from multiprocessing import Pool
 from lxml import etree
+from database.database import DataBase
 
 
 def click_accept(driver):
@@ -48,7 +49,7 @@ def run_browser():
 
 
 
-def parse():
+def start_burgerking_promo():
 
     driver = run_browser()
 
@@ -83,8 +84,5 @@ def parse():
         5: 'image',
     }
     data = pd.DataFrame(data)
-    data = data.rename(columns=columns)
-    data.to_excel(f"bk_{str(date)}.xlsx")
-
-if __name__ == '__main__':
-    parse()
+    data_frame = data.rename(columns=columns)
+    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_BURGER_KING_PROMO')

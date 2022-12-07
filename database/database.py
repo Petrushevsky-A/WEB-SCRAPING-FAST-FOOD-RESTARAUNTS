@@ -1,4 +1,5 @@
-import pymysql
+# import pymysql
+import psycopg2
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -19,17 +20,16 @@ class DataBase():
         password = DATABASES['password']
         host = DATABASES['host']
         database = DATABASES['database']
-        return create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
-
-    # def get_table(self, name_table):
-    #     users_table = TABLE[name_table]
-    #     result = self.connect_db.execute(users_table.select())
-    #     return result.mappings().all()
-
-    def get_table(self, name_table):
-        return pd.read_sql_table(name_table, self.connect_db)
+        # 'postgresql+psycopg2://username:password@host:port/database'
+        # return create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
+        # return create_engine(rf'postgresql+psycopg2://{user}:{password}@{host}/{database}')
+        return create_engine(rf'postgresql://{user}:{password}@{host}/{database}')
 
 
-    def create_stg_table(self, data_frame: pd.DataFrame, name_stg_table: str):
+    def get_table(self, name_table, chunksize=100):
+        yield pd.read_sql_table(name_table, self.connect_db, chunksize=chunksize)
+
+
+    def to_stg_table(self, data_frame: pd.DataFrame, name_stg_table: str):
         data_frame.to_sql(name_stg_table, self.connect_db, if_exists='append', index=False)
-
+        return True

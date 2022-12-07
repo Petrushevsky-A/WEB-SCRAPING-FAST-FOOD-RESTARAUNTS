@@ -1,13 +1,16 @@
-import time
-from datetime import datetime
-
-import requests
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
+
 import pandas as pd
+import requests
+
+import time
+from datetime import datetime
+
+from database.database import DataBase
 
 options = Options()
 # options.add_argument("--headless")
@@ -171,8 +174,4 @@ for nutrtion_information in nutrtion_informations:
 driver.close()
 driver.quit()
 
-
-
-
-
-pd.DataFrame(data_nutrtion_informations).to_excel(f'nandos_nutrition_information_{str(date)}.xlsx')
+DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_DELIVEROO_PRICE')

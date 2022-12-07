@@ -8,6 +8,8 @@ from selenium.webdriver.chrome.options import Options
 import setting
 from database.database import DataBase
 
+
+
 class HotukdealsParser():
 
     def __init__(self, url):
@@ -157,7 +159,6 @@ class HotukdealsParser():
 
 
     def run_browser(self):
-
         options = Options()
         tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
         path = setting.SELENIUM['path']

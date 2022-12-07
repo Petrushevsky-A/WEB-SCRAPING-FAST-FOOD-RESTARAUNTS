@@ -1,321 +1,276 @@
-import time
-from datetime import datetime
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.select import Select
+
+import time
+import setting
 
 
-import pandas as pd
-import requests
-import numpy as np
-from multiprocessing import Pool
-from lxml import etree
+class DominosParser():
 
-
-
-def accept_click(driver):
-    # $x('//button[contains(text(), "Accept")]')
-    try:
-        driver.find_element(By.XPATH, '//button[contains(text(), "Accept")]').click()
-        time.sleep(2)
-    except:
-        print("Not found accept")
-        pass
-
-
-def get_city(driver):
-    # $x('//span[@class="nav-store-name"]')
-    try:
-        city = driver.find_element(By.XPATH,
-                            '//span[@class="nav-store-name"]').text
-    except:
-        city = ''
-    return city
-
-
-
-def get_html_category_list_foods(driver):
-    # $x('//section[@class="category"]')
-    return [i.get_attribute('innerHTML') for i in driver.find_elements(By.XPATH, '//section[@class="category"]')]
-
-
-def get_category(driver):
-    return [i.get_attribute('id') for i in driver.find_elements(By.XPATH, '//section[@class="category"]')]
-
-
-class Parse_menu():
-
-    # $x('(//main//ul)[2]/li[1]//span')
-    # $x('(//main//ul)[2]/li[1]//img')
-    # $x('//span[contains(text(), "£")]').map(i= > i.textContent) split('•')
-
-    def __init__(self, html_list_category_foods,name_category, post_code , url, city, brand, address):
-        self.html = etree.HTML(html_list_category_foods)
-        self.name_category = name_category
-        self.url = url
+    def __init__(self, post_code):
         self.post_code = post_code
-        self.city = city
-        self.brand = brand
-        self.address = address
+        self.url = 'https://www.dominos.co.uk/'
+        self.driver = None
+        self.data_products = []
+        self.data_parsed = []
 
-    def get_name_category(self):
-        return self.name_category
-
-    def get_image_food(self, html):
-        # $x('(//section[@class="category"])[2]//img')
-        try:
-            html = etree.HTML(html)
-            url_image = [i.get('src') for i in html.xpath('//img[contains(@class, "product-image")]')]
-            return url_image[0]
-        except:
-            return 'Not found'
-
-    def get_name_food(self, html):
-        html = etree.HTML(html)
-        try:
-            text = [i.text for i in html.xpath(
-                '//p[@class="h6"]')]
-            text = "".join(text)
-            if text == '':
-                text = [i.text for i in html.xpath(
-                    '//select[contains(@class, "product-variant")]/option[@selected="selected"]')]
-                text = "".join(text[0])
-            return text
-        except:
-            pass
+        self.cards = None
 
 
+        self.option_text = []
 
-    # def get_size_food(self, html):
-    #     try:
-    #         # '//span[contains(text(), "£")]'
-    #         html = etree.HTML(html)
-    #         text = [i.text for i in html.xpath('//*[contains(text(), "£")]')]
-    #         return [i for i in text if '£' in i][0]
-    #     except:
-    #         return 'Not found'
-
-    def get_cost_food(self, html):
-        try:
-            # '//span[contains(text(), "£")]'
-            html = etree.HTML(html)
-            text = [i.text for i in html.xpath('//*[contains(text(), "£")]')]
-            return text[0].split()[-1].replace('£', '')
-        except:
-            return 'Not found'
-
-    def get_html_card_food(self) -> list["html"]:
-        # $x('(//section[@class="category"])[2]//article[contains(@class, "product")]')
-        try:
-            text = [etree.tostring(i) for i in self.html.xpath(
-                '//article[contains(@class, "product")]')]
-            return text
-        except:
-            return ['Not found']
-
-    def get_size(self, html):
-        try:
-            # '//span[contains(text(), "£")]'
-            html = etree.HTML(html)
-            text = [i.text for i in html.xpath('//*[contains(text(), "£")]')]
-            return text[0].split()[0] if not "£" in text[0].split()[0] else ''
-        except:
-            return 'Not found'
-
-    def __call__(self, *args, **kwargs):
-        date = datetime.now().strftime("%d.%m.%Y")
-        url = self.url
-        post_code = self.post_code
-        city = self.city
-        brand = self.brand
-        address = self.address
-
-
-        # parce block
-        name_category = self.get_name_category()
-
-        html_card_food = self.get_html_card_food()
-        data = []
-        for html_card in html_card_food:
-            name = self.get_name_food(html_card)
-            image_url = self.get_image_food(html_card)
-            cost = self.get_cost_food(html_card)
-            category_2 = self.get_size(html_card)
-            data.append({
-                'Start date': date,
-                'End date': date,
-                'Brand':brand,
-                'Address':address,
-                'City':city,
-                'Post_code':post_code,
-                'Segment':'',
-                'Category':name_category,
-                'Category 2':category_2,
-                'Category 3':'',
-                'Category 4':'',
-                'Item': name,
-                'Source': 'dominos.co.uk',
-                'Region': 'UK',
-                'Price(£)':cost,
-                'Status':"on",
-                'Picture':image_url,
-                'Url_picture':image_url,
-                'Url':url,
-
-            })
-        # print(data)
-        return data
-
-
-def scrolling_page(driver):
-    # $x('//section[@class="category"]//article[contains(@class, "product")]')
-    for to_scrolling_element in driver.find_elements(By.XPATH, '//section[@class="category"]//article[contains(@class, "product")]'):
-        driver.execute_script("arguments[0].scrollIntoView();", to_scrolling_element)
-        time.sleep(0.2)
-
-
-def next_page(driver) ->list["Selenium element"]:
-    #  $x('//main/div/div/a/')
-    try:
-        return driver.find_elements(By.XPATH, '//main/div/div/a/')
-    except:
-        return ["123"]
-
-
-def input_post_code(driver, post_code):
-    # $x('//input[@type="text"]')
-    driver.find_element(By.XPATH, '//input[@type="text"]').send_keys(post_code)
-    time.sleep(1)
-    driver.find_element(By.XPATH, '//input[@type="text"]').send_keys(Keys.ENTER)
-    time.sleep(7)
-
-
-def click_first_button_list(driver):
-    # $x('//*[contains(text(), "Collect")]/ancestor::button')
-    try:
-        driver.find_element(By.XPATH, '//*[contains(text(), "Collect")]/ancestor::button').click()
-        time.sleep(4)
-    except:
-        print("not found button collect")
-
-
-def close_popup(driver):
-    # $x('//button[contains(@class, "close")]')
-    try:
-        driver.find_element(By.XPATH, '//button[contains(@class, "close")]').click()
+    def __enter__(self):
+        # Запуск браузера
+        self.driver = self.run_browser()
         time.sleep(2)
-    except:
-        print("not found button collect")
+        # открывает ссылку
+        self.open_url(self.url)
+        time.sleep(3)
 
-
-def get_address(driver):
-    # $x('//span[@class="nav-store-name"]/ancestor::li')
-    try:
-        driver.find_element(By.XPATH,
-                            '//span[@class="nav-store-name"]/ancestor::li').click()
+        # Подверджает куки
+        self.accept_click()
+        time.sleep(1)
+        # подставляет пост код в строку поиска
+        self.input_post_code()
         time.sleep(2)
-    except:
-        address = ''
-    try:
-        # $x('//*[contains(@data-ref-id, "address")]')
-        address = ", ".join([i.text for i in driver.find_elements(By.XPATH,
-                            '//*[contains(@data-ref-id, "address")]')])
-    except:
-        address = ''
-    return address
+        # Выбирает первый элемент списка после поиска
+        self.click_first_button_list()
+        time.sleep(1)
+        # Закрывает модальное окно, если есть необходимость
+        self.close_popup()
+        time.sleep(2)
+        return self
 
 
-def parse(post_code):
-
-    options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-
-    path = r'chromedriver.exe'
-    url = 'https://www.dominos.co.uk/'
-    driver = webdriver.Chrome(chrome_options=options, executable_path=path)
-    driver.get(url=url)
-    time.sleep(3)
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.driver.close()
+        self.driver.quit()
 
 
-    accept_click(driver)
+    def run_browser(self):
+        options = Options()
+        tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+        path = setting.SELENIUM['path']
+        driver = webdriver.Chrome(chrome_options=options, executable_path=path)
+        return driver
 
+    def open_url(self, url):
+        self.driver.get(url=url)
+        time.sleep(5)
 
-    input_post_code(driver, post_code)
-    click_first_button_list(driver)
-    close_popup(driver)
+    def accept_click(self):
 
+        try:
+            self.driver.find_element(By.XPATH, '//button[contains(text(), "Accept")]').click()
+            time.sleep(2)
+        except:
+            print("Not found accept")
 
+    def input_post_code(self):
+        # $x('//input[@type="text"]')
+        self.driver.find_element(By.XPATH, '//input[@type="text"]').send_keys(self.post_code)
+        time.sleep(1)
+        self.driver.find_element(By.XPATH, '//input[@type="text"]').send_keys(Keys.ENTER)
+        time.sleep(7)
 
-    brand = "Dominos"
+    def click_first_button_list(self):
+        # $x('//*[contains(text(), "Collect")]/ancestor::button')
+        try:
+            self.driver.find_element(By.XPATH, '//*[contains(text(), "Collect")]/ancestor::button').click()
+            time.sleep(4)
+        except:
+            print("not found button collect")
 
-    scrolling_page(driver)
-    html_list_category_foods = get_html_category_list_foods(driver)
-    list_category = get_category(driver)
-
-    city = get_city(driver)
-    address = get_address(driver)
-
-
-    data = []
-    for html_category, name_category in zip(html_list_category_foods, list_category):
-
-        menu = Parse_menu(
-                            html_list_category_foods = html_category,
-                            name_category =  name_category,
-                            url = url,
-                            post_code = post_code,
-                            city = city,
-                            brand = brand,
-                            address = address,
-                       )
-
-        data.append(menu())
-
-    data = sum(data, [])
-    # print(data)
-
-    date = datetime.now().strftime("%d.%m.%Y")
-    pd_data = pd.DataFrame(data)
-    pd_data.to_excel(f'dominos_price_{post_code}_result_menu_price_{str(date)}.xlsx')
-
-    # for pd_i in pd_data.iterrows():
-    #
-    #     src_img = pd_i['Picture']
-    #
-    #     print(src_img)
-    #     directory = "dominos_img"
-    #     name_img = pd_i['Item'].strip()
-    #     try:
-    #         reponse_img = requests.get(f"{src_img}")
-    #         if reponse_img.status_code == 200:
-    #             with open(f"{directory}/{name_img}.jpg", "wb") as file:
-    #                 file.write(reponse_img.content)
-    #     except:
-    #         print(f"ERROR {src_img}")
-
-
-if __name__ == '__main__':
-    post_codes = [
-        'W1C 1LX',
-        'CF10 1PN',
-        # 'BT1 5AA',
-        # 'G1 3SQ',
-        # 'B2 4QA',
-        # 'L1 8JQ',
-        # 'LS1 1UR',
-        # 'M2 5DB',
-    ]
-
-    with Pool(processes=4) as p:
-        p.map(parse, post_codes)
+    def close_popup(self):
+        # $x('//button[contains(@class, "close")]')
+        try:
+            self.driver.find_element(By.XPATH, '//button[contains(@class, "close")]').click()
+            time.sleep(2)
+        except:
+            print("not found button collect")
 
 
 
+    def get_address(self):
+        # $x('//span[@class="nav-store-name"]/ancestor::li')
+        try:
+            # self.driver.find_element(By.XPATH,
+            #                     r'(//*[contains(text(), "Collection")]/ancestor::div/a)[1]').click()
+            # $x('(//*[contains(text(), "Collection")]/ancestor::div[a])[1]')
+            # $x('//*[contains(text(), "Collection")]/ancestor::div[contains(@class, "button-container")]')
+            # url_address_info = self.driver.find_element(By.XPATH,
+            #                     r'(//*[contains(text(), "Collection")]/ancestor::div/a)[1]').get_attribute('href')
+            url_address_info = self.driver.current_url.replace('store', 'storefulfilment').replace('menu', 'moreinfo')
+            print(url_address_info)
+
+            self.open_url(url_address_info)
+            time.sleep(2)
+
+        except Exception as ex:
+            print(ex)
+            address = ''
+        try:
+            # $x('//*[contains(@data-ref-id, "address")]')
+            address = ", ".join([i.text for i in self.driver.find_elements(By.XPATH,
+                                                                      r'//*[contains(@data-ref-id, "address")]')])
+        except Exception as ex:
+            print(ex)
+            address = ''
+        return address
+
+    def get_count_cards(self):
+        self.cards = self.driver.find_elements(By.XPATH, r'//*[@data-ref-id="base-menu-item-container"]')
+        count = len(self.cards)
+        return count
+
+
+    def get_current_html_card_by_element(self, index):
+        # по ИД порядкового номера(от 0)
+        return self.cards[index].get_attribute('outerHTML')
+        # return self.cards[index].page_source
+        # return self.driver.page_source
+        # return self.driver.find_element(By.XPATH,  rf'(//*[@data-ref-id="base-menu-item-container"])[{index+1}]').get_attribute('outerHTML')
+        # return self.driver.execute_script("return arguments[0].outerHTML;", self.cards[index])
+
+    def scrolling_common(self, index):
+        yield self.get_current_html_card_by_element(index)
+
+    def scrolling_page(self, index):
+        self.driver.execute_script("arguments[0].scrollIntoView();", self.cards[index])
+        time.sleep(1)
+
+    def scrolling_select(self, index):
+        try:
+            select_size_options = self.cards[index].find_elements(By.XPATH,
+                                                             './/div[contains(@class, "variants-container")]//select[@data-ref-id="base-select-input"]/option[not(@disabled="disabled")]')
+            select_size = Select(self.cards[index].find_element(By.XPATH,
+                                                           './/div[contains(@class, "variants-container")]//select[@data-ref-id="base-select-input"]'))
+
+            self.option_text = [i.text for i in select_size_options]
+            for option in select_size_options:
+                print(f'option.text = {option.text}')
+                select_size.select_by_visible_text(option.text)
+                # self.option_text.append(option.text)
+                time.sleep(0.8)
+                yield self.get_current_html_card_by_element(index)
+        except Exception as ex:
+            # print(ex)
+            yield False
+
+    def get_option_select(self):
+        options = self.option_text
+        for option in options:
+            yield option
+
+
+
+    def scrolling_choose(self, index, check=False):
+        try:
+
+            # button_choose = self.cards[index].find_element(By.XPATH, r'.//*[contains(text(), "choose")]/ancestor::button[contains(@data-ref-id, "base-menu-card")]')
+            # button_choose = self.cards[index].find_element(By.XPATH, r'.//button[contains(@class, "group-button")]//*[contains(text(), "choose")]/ancestor::button[contains(@data-ref-id, "base-menu-card")]')
+            button_choose = self.cards[index].find_element(By.XPATH, r'.//*[contains(text(), "choose")]')
+            # button_choose = self.cards[index].find_element(By.XPATH, r'.//button[4]')
+            # button_choose = self.cards[index].find_element(By.XPATH, r'.//button[contains(@data-ref-id, "base-menu-card")]')
+            # button_choose = self.cards[index].find_element(By.XPATH, r'.//*[contains(text(), "choose")]/ancestor::button[contains(@data-ref-id, "base-menu-card")]')
+            # print(f'button_choose  - {bool(button_choose)}')
+
+
+            if check:
+                yield True
+
+
+            self.driver.execute_script("arguments[0].click();", button_choose)
+            # button_choose.click()
+            time.sleep(2)
+            # $x('(//*[@data-ref-id="base-menu-item-container"])[50]/following-sibling::section')
+            xpath_section = f'(//*[@data-ref-id="base-menu-item-container"])[{index+1}]/following-sibling::section//section[@data-ref-id="base-grid"]/div'
+            tray_cards = self.driver.find_elements(By.XPATH, xpath_section)
+            # tray_cards = self.driver.find_elements(By.XPATH,
+            #                                       f'//*[@data-ref-id="base-menu-item-container"]//section[contains(@class, "base-cards-tray")]//section/div')
+            print(len(tray_cards))
+            # time.sleep(3333)
+            for tray_card in tray_cards:
+                yield tray_card.get_attribute('outerHTML')
+        except Exception as ex:
+            yield False
+        else:
+            self.driver.execute_script("arguments[0].click();", button_choose)
+            time.sleep(1)
+
+
+    def get_type_card(self, index):
+
+        select_type = bool(next(self.scrolling_select(index)))
+        choose_type = bool(next(self.scrolling_choose(index, check=True)))
+        type_card = {
+                        True:'common_type',
+                        select_type:'select_type',
+                        choose_type:'choose_type',
+                     }
+
+        return type_card[True]
+
+    def get_category(self, index):
+        # $x('(//*[@data-ref-id="base-menu-item-container"])[1]/ancestor::section[@class="base-scroll-section"]')
+        try:
+            xpath = rf'(//*[@data-ref-id="base-menu-item-container"])[{index+1}]/ancestor::section[@class="base-scroll-section"]'
+            category = self.driver.find_element(By.XPATH, xpath).get_attribute('id')
+            return category
+        except:
+            return 'error'
+
+    def find(self, index, xpath_collections, attribute = 'innerHTML'):
+        # data_set = []
+        # for xpath in xpath_collections:
+        #     try:
+        #         html = self.cards[index].find_element(By.XPATH, xpath).get_attribute('innerHTML')
+        #         print('='*33)
+        #         print(f'html {html}')
+        #         print('='*33)
+        #         data_set.extend([html])
+        #     except:
+        #         data_set.extend(['error'])
+        # return data_set
+        data_set = ''
+        for xpath in xpath_collections:
+            try:
+                xpath = rf'(//*[@data-ref-id="base-menu-item-container"])[{index+1}]{xpath[1:]}'
+                html = self.driver.find_element(By.XPATH, xpath).get_attribute(attribute)
+                # html = self.cards[index].find_element(By.XPATH, xpath).get_attribute(attribute)
+                data_set += html
+            except:
+                data_set += 'error'
+        return data_set
+
+    def get_image(self, index):
+        xpath_collections = (
+            './/img',
+            './/*[@loading="lazy"]',
+            './/*[@class="base-lazy-image"]',
+            './/picture',
+        )
+        html_collections = self.find(index, xpath_collections, 'src')
+        return html_collections
+
+    def get_price(self, index):
+        xpath_collections = (
+            './/*[contains(text(), "£")]',
+            './/*[@data-ref-id="base-menu-price-text"]',
+            './/*[contains(@*, "price")]',
+        )
+        html_collections = self.find(index, xpath_collections, 'textContent')
+        return html_collections
+
+    def get_name(self, index):
+        xpath_collections = (
+            './/*[contains(@*, "name")]',
+            './/h3',
+            './/*[contains(@*, "title")]',
+        )
+        html_collections = self.find(index, xpath_collections, 'textContent')
+        return html_collections

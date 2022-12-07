@@ -3,14 +3,14 @@ import time
 from parsers.promo.hotukdeals.hotukdeals import HotukdealsParser
 from cleaner.hotukdeals.hotukdeals import HotukdealsCleaner
 from database.database import DataBase
-
+import pathlib
 
 class HotukdealsController():
 
     def __init__(self):
-        # self.start_parse()
-        print(self.get_urls_voucher_codes_page())
-        print(len(self.get_urls_voucher_codes_page()))
+        self.start_parse()
+        # print(self.get_urls_voucher_codes_page())
+        # print(len(self.get_urls_voucher_codes_page()))
         # print(self.get_urls_deals_cards_page())
         # self.parsed_deals_cards_page()
         # self.parsed_voucher_codes_page()
@@ -78,7 +78,7 @@ class HotukdealsController():
 
     def to_stg_db(self, data_frame, name_stg_table):
         # DataBase().create_stg_table(data_frame= self.get_deals_cards, name_stg_table='STG_HOTUKDEALS_BURGERKING')
-        DataBase().create_stg_table(data_frame= data_frame, name_stg_table=name_stg_table)
+        DataBase().to_stg_table(data_frame= data_frame, name_stg_table=name_stg_table)
 
     def scrolling_voucher_codes_page(self, parser):
         parser.see_more_voucher_codes_page()

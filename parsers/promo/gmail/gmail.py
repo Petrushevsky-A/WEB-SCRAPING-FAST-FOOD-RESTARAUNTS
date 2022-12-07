@@ -13,7 +13,7 @@ import numpy as np
 
 from multiprocessing import Pool
 from lxml import etree
-
+from database.database import DataBase
 
 def run_browser():
     # options = Options()
@@ -156,9 +156,9 @@ def read_messeges(driver, list_messeges):
         6: 'hash_id',
     }
     data = pd.DataFrame(data)
-    data = data.rename(columns = columns)
-    data.to_excel(f"gmail_messeges_{list_messeges}_{date}.xlsx")
-
+    data_frame = data.rename(columns = columns)
+    # data.to_excel(f"gmail_messeges_{list_messeges}_{date}.xlsx")
+    DataBase().to_stg_table(data_frame= data_frame, name_stg_table='STG_GMAIL_PROMO')
 def to_all_mail(driver):
     url = 'https://mail.google.com/mail/u/2/?ogbl#all'
     driver.get(url)
@@ -175,7 +175,7 @@ def to_next_page(driver):
     except:
         return -1
         print(5)
-def parse():
+def start_gmail_promo():
 
     driver = run_browser()
     accept_click(driver)
@@ -232,7 +232,4 @@ def parse():
     }
 
 
-
-if __name__ == '__main__':
-    parse()
 

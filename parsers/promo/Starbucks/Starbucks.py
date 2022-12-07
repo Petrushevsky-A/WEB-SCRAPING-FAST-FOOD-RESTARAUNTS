@@ -15,7 +15,9 @@ import numpy as np
 from multiprocessing import Pool
 from lxml import etree
 
+from database.database import DataBase
 
+# Подтверждение в модальном окне
 def click_accept(driver):
     try:
         driver.find_element(By.XPATH, '//button[contains(text(), "Accept")]').click()
@@ -25,7 +27,7 @@ def click_accept(driver):
 
 
 
-
+# Запуск браузера
 def run_browser():
     options = Options()
     # options.add_argument("--headless")
@@ -51,7 +53,7 @@ def run_browser():
 
 
 
-def parse():
+def start_startuck_promo():
 
     driver = run_browser()
 
@@ -103,8 +105,7 @@ def parse():
 
     }
     data = pd.DataFrame(data)
-    data = data.rename(columns=columns)
-    data.to_excel(f"sturbacks_{str(date)}.xlsx")
+    data_frame = data.rename(columns=columns)
+    # data.to_excel(f"sturbacks_{str(date)}.xlsx")
 
-if __name__ == '__main__':
-    parse()
+    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_STARBUCKS_PROMO')

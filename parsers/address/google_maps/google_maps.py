@@ -574,7 +574,7 @@ class ParseGoogle():
     def get_temporarily_closed(self):
         try:
             return bool([i.text for i in self.driver.find_elements(By.XPATH,
-                                            '//span[contains(text(), "Temporarily closed")]')])
+                                            r'//span[contains(text(), "Temporarily closed")]')])
         except Exception:
             return "NotFound"
 

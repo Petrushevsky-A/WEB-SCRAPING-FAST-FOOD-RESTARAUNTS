@@ -11,7 +11,7 @@ import numpy as np
 from multiprocessing import Pool
 from lxml import etree
 
-
+from database.database import DataBase
 
 def accept_click(driver):
     # $x('//button[contains(text(), "Accept")]')
@@ -208,6 +208,8 @@ def parse(arg):
     try:
         url, post_code, city = arg
         print(f"PARSED {url}")
+        print(f'POST CODE {post_code}')
+        print(f'CITY {city}')
 
         options = Options()
         # options.add_argument("--headless")
@@ -256,11 +258,15 @@ def parse(arg):
                 continue
         data = sum(data, [])
         date = datetime.now().strftime("%d.%m.%Y")
-        pd.DataFrame(data).to_excel(f'deliveroo_{brand}_{post_code}_result_menu_price_{str(date)}.xlsx')
+        # pd.DataFrame(data).to_excel(f'deliveroo_{brand}_{post_code}_result_menu_price_{str(date)}.xlsx')
+        data_frame = pd.DataFrame(data)
+        DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_DELIVEROO_PRICE')
     except:
         pass
-if __name__ == '__main__':
+def start_deliveroo_price():
 
-    data = pd.read_excel('deliveroo_list_url.xlsx')
+    data = DataBase().get_table('deliveroo_list_urls')
+    urls_brands = []
+    next(next(data)).apply(lambda x: urls_brands.append(tuple(x)), axis=1)
     with Pool(processes=1) as p:
-        p.map(parse, zip(data['url'], data['post_code'], data['city']))
+        p.map(parse, urls_brands)

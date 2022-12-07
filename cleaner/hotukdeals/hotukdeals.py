@@ -1,6 +1,7 @@
 
 import re
 from lxml import html
+
 class HotukdealsCleaner():
 
     def __init__(self, data_html):

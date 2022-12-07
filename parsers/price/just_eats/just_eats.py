@@ -9,21 +9,20 @@ import pandas as pd
 import requests
 import numpy as np
 from multiprocessing import Pool
-
+from database.database import DataBase
 
 options = Options()
 # options.add_argument("--headless")
 # options.add_argument("--disable-extensions")
 options.add_argument("--start-maximized")
 options.add_argument("--lang=en-nz")
-options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
+options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5249.61 Safari/537.36")
 options.add_argument("--disable-blink-features=AutomationControlled")
 
 path = r'chromedriver.exe'
 
 
-urls = pd.read_excel('list_urls.xlsx')['links']
-brands = pd.read_excel('list_urls.xlsx')['brands']
+
 
 def parse(arg):
     url, brand = arg
@@ -147,14 +146,18 @@ def parse(arg):
         'date':menu_list[12],
     }
 
-    pd.DataFrame(data).to_excel(f'just_eats_{brand}_{post_code}_result_menu_price_{str(date)}.xlsx')
+    data_frame = pd.DataFrame(data)
+    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_JUST_EATS_PRICE')
 
-if __name__ == '__main__':
-
+def start_just_eats_price():
     # with Pool(processes=5) as p:
     #     temp = list(zip(urls, brands))[:]
     #     p.map(parse, zip(urls, brands))
+    data = DataBase().get_table('just_eats_list')
+    urls_brands = []
+    next(next(data)).apply(lambda x: urls_brands.append(tuple(x)), axis=1)
+
 
     with Pool(processes=5) as p:
-        temp = list(zip('https://www.just-eat.co.uk/restaurants-mcdonalds-manchesterstannssq/menu', "McDonald's"))
-        p.map(parse, list(zip(urls, brands))[34:])
+
+        p.map(parse, urls_brands)
