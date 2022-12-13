@@ -8,15 +8,17 @@ from datetime import datetime
 class DominosCleaner():
 
     def __init__(self):
-
         self.address = {}
         self.city = {}
-        self.post_code_address = {}
+        self.post_code_for_search = {}
         for df_address in next(self.get_address()):
-            df_address = df_address.set_index('post_code')
+            df_address = df_address.set_index('post_code_for_search')
             self.address.update(df_address.to_dict()['address'])
             self.city.update(df_address.to_dict()['city'])
-            self.post_code_address.update(df_address.to_dict()['post_code_for_search'])
+            self.post_code_for_search.update(df_address.to_dict()['post_code'])
+            # self.post_code_for_search.update(df_address.to_dict()['post_code_for_search'])
+            # print(self.post_code_for_search)
+            # print(df_address)
 
 
         self.data = next(self.get_html())
@@ -24,11 +26,11 @@ class DominosCleaner():
             self.clean(df)
 
     def get_html(self) -> pd.DataFrame:
-        for df_html in DataBase().get_table('STG_DOMINOS_HTML_CARDS', chunksize=100):
+        for df_html in DataBase().get_table('stg_dominos_html_cards', chunksize=100):
             yield df_html
 
-    def get_address(self):
-        for df_html in DataBase().get_table('DIM_DOMINOS_INFO', chunksize=100):
+    def get_address(self) -> pd.DataFrame:
+        for df_html in DataBase().get_table('dim_dominos_info', chunksize=100):
             yield df_html
 
     def find(self, html_element, xpath, attribute = None, method = None, method_arguments = None, attribute_index = None, tostring = None):
@@ -56,7 +58,6 @@ class DominosCleaner():
             return ['Not found', ]
 
     def parse(self, row: pd.Series):
-
         try:
             html_card = row['html_card']
             date_parse = row['date_parse']
@@ -78,7 +79,7 @@ class DominosCleaner():
             address = self.address[post_code]
 
             city = self.city[post_code]
-            post_code_address = self.post_code_address[post_code]
+            post_code_address = self.post_code_for_search[post_code]
 
 
             try:
@@ -138,7 +139,7 @@ class DominosCleaner():
                     }
             print(data)
             self.to_stg_db(pd.DataFrame(data=data, index=[0]), 'DIM_DOMINOS_CLEAN_DATE')
-        except Exception as ex:
+        except ValueError as ex:
             print(ex)
 
 

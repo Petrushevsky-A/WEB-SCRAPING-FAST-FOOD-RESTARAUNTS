@@ -21,6 +21,8 @@ from parsers.price.deliveroo.deliveroo import start_deliveroo_price
 from parsers.price.deliveroo.deliveroo_v2 import start_deliveroo_price_v2
 from parsers.price.nandos.nandos import start_nandos_price
 # from parsers.price.nandos.nandos_v2 import start_nandos_price_v2
+from parsers.price.supermarcs.supermarcs import SupermarcsPromoParser
+
 
 # old scripts promo
 from parsers.promo.uber_eats.uber_eats import start_uber_eats_promo
@@ -49,20 +51,23 @@ from data_showcase.promo import BurgerKingPromoToPromoDB
 from data_showcase.promo import StarbucksPromoToPromoDB
 from data_showcase.promo import McDonaldsPromoToPromoDB
 
+
+from controller.price.deliveroo import DeliverooPriceController
 if __name__ == '__main__':
 
     # DominosController()
     # DominosPromoController()
     # DominosCleaner()
-
+    DeliverooPriceController()
 
     # start_just_eats_price_v2()
     # start_uber_eats_price_v2()
     # start_uber_eats_price()
     # start_deliveroo_price()
     # start_deliveroo_price_v2()
+    # SupermarcsPromoParser()
+
     # start_nandos_price()
-    # start_nandos_price_v2()
     # start_uber_eats_promo()
     # start_startuck_promo()
     # start_just_eats_promo()
@@ -70,7 +75,7 @@ if __name__ == '__main__':
     # start_deliveroo_promo()
     # start_burgerking_promo()
     # start_gmail_promo()
-    start_kfc_promo()
+    # start_kfc_promo()
 
     # Витрина данных прайс
     # NandosPriceToPriceDB()
@@ -91,4 +96,4 @@ if __name__ == '__main__':
     # Текущая разработка
     # UberEatsPromoController().start_parse()
     # UberEatsPromoController()
-    # pass
+    pass

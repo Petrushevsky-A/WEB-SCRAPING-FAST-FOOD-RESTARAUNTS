@@ -64,11 +64,15 @@ def start_burgerking_promo():
 
     list_cards_deals = driver.find_elements(By.XPATH, '//div[@data-testid="browsing-panel"]//li')
     for id, val in enumerate(list_cards_deals[:-1], 1):
+
         driver.execute_script("arguments[0].scrollIntoView();", val)
         time.sleep(0.1)
         head = "".join([i.text for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//h3')])
         text = "".join([i.text for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//p')])
-        image = [i.get_attribute('srcset').split(',')[0][:-4] for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//div[picture][2]//source')][0]
+        try:
+            image = [i.get_attribute('srcset').split(',')[0][:-4] for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//div[picture][2]//source')][0]
+        except:
+            image = 'Not found'
         print(head)
         print(text)
         print(image)

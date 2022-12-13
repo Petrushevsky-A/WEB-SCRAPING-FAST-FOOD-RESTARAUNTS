@@ -1,4 +1,4 @@
-import sqlite3
+
 import time
 from datetime import datetime
 from selenium import webdriver
@@ -54,7 +54,7 @@ def get_brand(driver):
         return 'Not found'
 
 
-# олучение html-кодов по категориям
+# получение html-кодов по категориям
 def get_html_category_list_foods(driver):
     return [i.get_attribute('innerHTML') for i in driver.find_elements(By.XPATH, '(//main//ul)[1]/li')]
 
@@ -240,7 +240,6 @@ def parse(arg):
     # Запись данных с ресторана в Excel
     data = sum(data, [])
     date = datetime.now().strftime("%d.%m.%Y")
-    # pd.DataFrame(data).to_excel(f'tables/uber_eats_{brand}_{post_code}_result_menu_price_{str(date)}.xlsx')
     data_frame = pd.DataFrame(data)
     DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_uber_eats_price')
 
@@ -250,10 +249,10 @@ def parse(arg):
 # Настройка хромдрайвера
 def configuring_driver():
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--window-size=1920,1080")
-    # options.add_argument("--start-maximized")
+    # options.add_argument("--headless")
+    # options.add_argument("--disable-extensions")
+    # options.add_argument("--window-size=1920,1080")
+    options.add_argument("--start-maximized")
     options.add_argument("--lang=en-nz")
     options.add_argument(
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36")
@@ -270,7 +269,7 @@ def start():
     data = DataBase().get_table('uber_eats_list_url')
     urls_brands = []
     next(next(data)).apply(lambda x: urls_brands.append(tuple(x)), axis=1)
-    with Pool(processes=3) as p:
+    with Pool(processes=5) as p:
         p.map(parse, urls_brands)
 
 

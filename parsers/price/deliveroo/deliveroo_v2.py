@@ -116,7 +116,6 @@ class Parse_menu():
             return ['Not found']
 
     def __call__(self, *args, **kwargs):
-
         # Получение даты, пост-кода, города, бренда, адреса и названия категории
         date = datetime.now().strftime("%d.%m.%Y")
         post_code = self.post_code
@@ -136,6 +135,7 @@ class Parse_menu():
             name = self.get_name_food(val)
             image_url = self.get_image_food(val)
             cost = self.get_cost_food(val)
+
 
 
             # Запись одной пазиции в словарь, для добавления в Excel
@@ -158,12 +158,33 @@ class Parse_menu():
                 'Status': "on",
                 'Picture': image_url,
             }])
+            print({
+                'Start date': date,
+                'End date': date,
+                'Brand': brand,
+                'Address': address,
+                'City': city,
+                'Post_code': post_code,
+                'Segment': '',
+                'Category': name_category,
+                'Category 2': '',
+                'Category 3': '',
+                'Category 4': '',
+                'Item': name,
+                'Source': 'deliveroo.co.uk',
+                'Region': 'UK',
+                'Price': cost,
+                'Status': "on",
+                'Picture': image_url,
+            })
+            time.sleep(3333)
             DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_deliveroo_price')
         return data
 
 
 # Пролистывание страницы до конца, для подгрузки всех товаров
 def scrolling_page(driver):
+
     for to_scrolling_element in driver.find_elements(By.XPATH, '//ul/li'):
         driver.execute_script("arguments[0].scrollIntoView();", to_scrolling_element)
         time.sleep(0.2)
@@ -212,7 +233,7 @@ def parse(arg):
         data = sum(data, [])
         date = datetime.now().strftime("%d.%m.%Y")
         # pd.DataFrame(data).to_excel(f'tables/deliveroo_{brand}_{city}_price_{str(date)}.xlsx')
-        # data_frame = pd.DataFrame(data).to_excel(f'tables/deliveroo_{brand}_{city}_price_{str(date)}.xlsx')
+        # data_frame = pd.DataFrame(data)
         # DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_nandos_price')
     except:
         pass
@@ -224,10 +245,10 @@ def parse(arg):
 # Настройка хромдрайвера
 def configuring_driver():
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--window-size=1920,1080")
-    # options.add_argument("--start-maximized")
+    # options.add_argument("--headless")
+    # options.add_argument("--disable-extensions")
+    # options.add_argument("--window-size=1920,1080")
+    options.add_argument("--start-maximized")
     options.add_argument("--lang=en-nz")
     options.add_argument(
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36")

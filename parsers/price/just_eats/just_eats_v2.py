@@ -314,7 +314,7 @@ def start():
     urls_brands = []
     next(next(data)).apply(lambda x: urls_brands.append(tuple(x)), axis=1)
     with Pool(processes=1) as p:
-        p.map(parse, urls_brands)
+        p.map(parse, urls_brands[35:])
 
 
 def start_just_eats_price_v2():

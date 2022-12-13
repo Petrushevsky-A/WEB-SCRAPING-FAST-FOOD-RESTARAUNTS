@@ -16,7 +16,7 @@ SELENIUM = {
     'path': Path.cwd() / r'chromedriver.exe',
     'options':
         {
-            'user-agent':"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.71 Safari/537.36",
+            'user-agent':"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.99 Safari/537.36",
             'automation_controlled':"--disable-blink-features=AutomationControlled",
             'windows_size' :"--start-maximized",
             'language' :"--lang=en-nz",
