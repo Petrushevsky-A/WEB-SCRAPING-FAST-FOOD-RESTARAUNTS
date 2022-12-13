@@ -133,7 +133,7 @@ class DeliverooPriceParser():
         xpath = r'./ancestor::div[contains(@id,"layout")]/div[@data-testid="layout-head"]//h3'
         try:
             item = card.find_element(By.XPATH, xpath)
-            category = item.text
+            category = item.get_attribute('innerHTML')
         except Exception as ex:
             print(ex)
             category = 'Not found'

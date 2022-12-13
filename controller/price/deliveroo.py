@@ -39,6 +39,7 @@ class DeliverooPriceController():
     @start_scraping
     def scraping(self, url, post_code_for_search, city):
         date = datetime.now().strftime("%d.%m.%Y")
+
         with DeliverooPriceParser(url = url) as parser:
 
             address = parser.get_address(city)
@@ -54,6 +55,7 @@ class DeliverooPriceController():
                 image_url = parser.get_image_url(card)
                 html_card = parser.get_html_card(card)
                 title_item = parser.get_title_item(card)
+
                 category = parser.get_category(card)
 
                 data ={
@@ -78,6 +80,7 @@ class DeliverooPriceController():
                         'post_code_address': post_code_for_search,
                         'description': description,
                         'calories': calories,
+                        'url': url,
                     }
 
 
@@ -85,7 +88,7 @@ class DeliverooPriceController():
 
                 self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS')
 
-    start_scraping = staticmethod(start_scraping)
+
     def to_stg_db(self, data_frame, name_stg_table):
         DataBase().to_stg_table(data_frame= data_frame, name_stg_table=name_stg_table)
 
