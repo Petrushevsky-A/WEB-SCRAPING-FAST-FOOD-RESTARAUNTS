@@ -1,7 +1,6 @@
 from datetime import datetime
 from time import sleep
 
-from lxml import etree
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -32,6 +31,10 @@ def promo_position(title, description, picture):
         'picture': picture,
     }
     print(promo)
+
+    data_frame = pd.DataFrame(promo, index=[0])
+    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_kfc_promo')
+
     return promo
 
 
@@ -42,30 +45,26 @@ class Parse:
 
     def parse(self):
 
-        DEALS = [i.get_attribute('innerHTML') for i in self.driver.find_elements(By.XPATH, '//main/div')]
-        print(len(DEALS))
-        for i in range(0, len(DEALS), 3):
+        DEALS = self.driver.find_elements(By.XPATH, '//main/div')
+
+        for i in range(1, len(DEALS) + 1):
+
             try:
+                picture = self.driver.find_element(By.XPATH, f'//main/div[{i}]//ul[@class="slider animated"]/li[2]/div').get_attribute('src')
+                title = self.driver.find_element(By.XPATH, f'//main/div[{i+1}]//h2').get_attribute('innerHTML').replace('<br>', '').replace('&nbsp;', '').replace('\n', ' ').replace('amp;', '')
+                description = self.driver.find_element(By.XPATH, f'//main/div[{i+1}]//strong').get_attribute('innerHTML').replace('<br>', '').replace('&nbsp;', '').replace('\n', ' ').replace('amp;', '')
+
+                self.data.append(promo_position(title, description, picture))
+            except:
                 try:
-                    image_url = [self.driver.find_element(By.XPATH, f'//main/div[{i + 2}]//img').get_attribute('src')]
+                    pictures = [i.get_attribute('src') for i in self.driver.find_elements(By.XPATH, f'//main/div[{i}]//img')]
+                    titles = [i.get_attribute('innerHTML').replace('<br>', '').replace('&nbsp;', '').replace('\n', ' ').replace('amp;', '') for i in self.driver.find_elements(By.XPATH, f'//main/div[{i}]//h2')]
+                    descriptions = [i.get_attribute('innerHTML').replace('<br>', '').replace('&nbsp;', '').replace('\n', ' ').replace('amp;', '') for i in self.driver.find_elements(By.XPATH, f'//main/div[{i}]//p')]
+
+                    for j in range(len(pictures)):
+                        self.data.append(promo_position(titles[j], descriptions[j], pictures[j]))
                 except:
-                    try:
-                        image_url = [i.get_attribute('src') for i in
-                                     self.driver.find_elements(By.XPATH, f'//main/div[{i + 3}]//img')]
-                    except:
-                        image_url = ''
-
-                html_text_deal = etree.HTML(DEALS[i + 2])
-                title_deal = [i.text for i in html_text_deal.xpath('//h2')]
-                text_deal = [i.text for i in html_text_deal.xpath('//strong')]
-                if len(text_deal) == 0:
-                    text_deal = [i.text for i in html_text_deal.xpath('//p')]
-
-                for deal in range(len(title_deal)):
-                    self.data.append(promo_position(title_deal[deal], text_deal[deal], image_url[deal]))
-
-            except Exception as ex:
-                print(ex)
+                    pass
 
     def __call__(self, *args, **kwargs):
         self.driver.get(url='https://www.kfc.co.uk/kfc-deals')
@@ -76,9 +75,6 @@ class Parse:
         self.driver.close()
         self.driver.quit()
 
-        data = sum(self.data, [])
-        data_frame = pd.DataFrame(data)
-        DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_kfc_promo')
 
 
 def configuring_driver():
@@ -89,15 +85,15 @@ def configuring_driver():
     options.add_argument("--start-maximized")
     options.add_argument("--lang=en-nz")
     options.add_argument(
-        r"user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.95 Safari/537.36")
-    # options.add_argument("--disable-blink-features=AutomationControlled")
+        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.99 Safari/537.36")
+    options.add_argument("--disable-blink-features=AutomationControlled")
 
     path = r'chromedriver.exe'
 
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
-
     return driver
 
 
 def start_kfc_promo():
     Parse()()
+

@@ -27,20 +27,27 @@ class DataBase():
         return create_engine(rf'postgresql://{user}:{password}@{host}/{database}')
 
 
-    def get_table(self, name_table, chunksize=100):
+    # def get_table(self, name_table, chunksize=100):
+    #     name_table = name_table.lower()
+    #     yield pd.read_sql_table(name_table, self.connect_db, chunksize=chunksize)
+
+
+    def get_table(self, name_table, chunksize=100, date_param=None):
+        '''
+        :param name_table str :
+        :param int : size DataFrame
+        :param date List[str, str]: ['column_name_date', '17.08.2022']
+        :yield DataFrame:
+        '''
         name_table = name_table.lower()
-        yield pd.read_sql_table(name_table, self.connect_db, chunksize=chunksize)
 
-
-    # def get_table(self, name_table, params=None,name_column_date='', chunksize=100):
-    #     if not params:
-    #         params = [datetime.now().strftime("%d.%m.%Y"), 'date']
-    #     else:
-    #         params.extend(name_column_date)
-    #
-    #     query = f"SELECT * FROM {name_table} WHERE %s=%x"
-    #     data = pd.read_sql(query, self.connect_db, chunksize=chunksize, params=params)
-    #     yield data
+        if date_param:
+            query = f"SELECT * FROM {name_table} WHERE %s=%x"
+            data = pd.read_sql(query, self.connect_db, chunksize=chunksize, params=date_param)
+            yield data
+        else:
+            name_table = name_table.lower()
+            yield pd.read_sql_table(name_table, self.connect_db, chunksize=chunksize)
 
     def to_stg_table(self, data_frame: pd.DataFrame, name_stg_table: str):
         name_stg_table = name_stg_table.lower()
