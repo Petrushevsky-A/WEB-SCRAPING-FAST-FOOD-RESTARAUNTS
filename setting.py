@@ -1,6 +1,10 @@
 from pathlib import Path
 
 
+OS = {
+    True:'Linux',
+    False:'Windows',
+}
 
 
 DATABASES = {
