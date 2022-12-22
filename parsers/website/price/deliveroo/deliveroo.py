@@ -216,7 +216,8 @@ class DeliverooPriceParser():
             self.click_card(card)
             self.sizes_button = self.driver.find_elements(By.XPATH, '//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button')
 
-
+            if not self.sizes_button:
+                raise
             print('=' * 33)
             for size in self.sizes_button:
                 self.get_size_element(size)
@@ -224,6 +225,8 @@ class DeliverooPriceParser():
             print('=' * 33)
         except Exception as ex:
             print(ex)
+            self.sizes.append('')
+            self.prices.append(self.base_price)
         else:
             time.sleep(1)
             ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()

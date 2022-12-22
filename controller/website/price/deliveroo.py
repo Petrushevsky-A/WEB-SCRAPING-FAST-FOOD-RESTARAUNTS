@@ -64,7 +64,10 @@ class DeliverooPriceController():
                 print(f'price     ===============================================  {parser.prices}')
                 print(f'name size     ===============================================  {parser.sizes}')
 
-                for price, size in [[(parser.base_price, '')], zip(parser.prices, parser.sizes)][[parser.base_price]<parser.prices]:
+
+
+                # for price, size in [[(parser.base_price, '')], zip(parser.prices, parser.sizes)][[parser.base_price]<parser.prices]:
+                for price, size in zip(parser.prices, parser.sizes):
                     data ={
                             'start_date': date,
                             'end_date': date,
@@ -93,7 +96,7 @@ class DeliverooPriceController():
 
                     data_frame = pd.DataFrame(data, index=[0])
 
-                    self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS_22222')
+                    self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS_OLOLOSHA')
 
 
     def to_stg_db(self, data_frame, name_stg_table):
