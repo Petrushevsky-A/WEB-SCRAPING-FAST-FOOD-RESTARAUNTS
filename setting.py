@@ -25,9 +25,9 @@ PROXY_SELENIUMWIRE = {
         # qXkJ97
         # UjNPey
         # 8000
-        'http': f'http://qXkJ97:UjNPey@196.18.165.20:8000',
+        # 'http': f'http://qXkJ97:UjNPey@196.18.165.20:8000',
         'https': f'https://qXkJ97:UjNPey@196.18.165.20:8000',
-    }
+    },
 }
 
 
@@ -49,10 +49,11 @@ SELENIUM = {
             # 'headless':'--headless',
             # 'shm': '--disable-dev-shm-usage',
             # 'user-agent':"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.99 Safari/537.36",
+            # 'user-agent':"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
             'user-agent':"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
             # 'automation_controlled':"--disable-blink-features=AutomationControlled",
             'windows_size' :"--start-maximized",
-            'language' :"--lang=en-nz",
+            # 'language' :"--lang=en-nz",
             # 'certificate-errors': '--ignore-certificate-errors',
             # 'ssl': '--ignore-ssl-errors=yes',
         }

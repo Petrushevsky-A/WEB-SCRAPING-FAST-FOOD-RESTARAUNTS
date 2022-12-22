@@ -1,5 +1,5 @@
 
-from parsers.price.deliveroo.deliveroo import DeliverooPriceParser
+from parsers.website.price.deliveroo.deliveroo import DeliverooPriceParser
 from database.database import DataBase
 
 
@@ -12,9 +12,9 @@ from functools import wraps
 class DeliverooPriceController():
 
     def __init__(self):
-        data_for_scraping = next(next(self.get_data_for_scraping())).iterrows()
+        data_for_scraping = next(next(self.get_data_for_scraping()))[10:].iterrows()
 
-        with Pool(processes=5) as pool:
+        with Pool(processes=1) as pool:
             pool.map(self.scraping, data_for_scraping)
 
     def get_data_for_scraping(self) -> pd.DataFrame:
