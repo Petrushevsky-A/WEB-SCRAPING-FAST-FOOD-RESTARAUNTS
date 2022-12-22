@@ -7,13 +7,18 @@ class ProxyPlugin():
 
     def __init__(self):
         self.PROXY_HOST, self.PROXY_PORT, self.PROXY_USER, self.PROXY_PASSWORD = setting.PROXY.values()
+
+
+
         self.generate_plugin_scripts()
         self.generate_plugin_file()
 
 
     def generate_plugin_scripts(self):
 
-        self.manifest_json = r"""
+        #
+
+        self.manifest_json = """
         {
             "version": "1.0.0",
             "manifest_version": 2,
@@ -34,7 +39,7 @@ class ProxyPlugin():
         }
         """
 
-        self.background_js = r"""
+        self.background_js = """
         var config = {
                 mode: "fixed_servers",
                 rules: {
@@ -43,12 +48,12 @@ class ProxyPlugin():
                     host: "%s",
                     port: parseInt(%s)
                   },
-                  bypassList: ["localhost"]self.
+                  bypassList: ["localhost"]
                 }
               };
-    
+
         chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
-    
+
         function callbackFn(details) {
             return {
                 authCredentials: {
@@ -57,13 +62,14 @@ class ProxyPlugin():
                 }
             };
         }
-    
+
         chrome.webRequest.onAuthRequired.addListener(
                     callbackFn,
                     {urls: ["<all_urls>"]},
                     ['blocking']
         );
         """ % (self.PROXY_HOST, self.PROXY_PORT, self.PROXY_USER, self.PROXY_PASSWORD)
+
 
     def generate_plugin_file(self):
         proxy_plugin_file = 'proxy_auth_plugin.zip'

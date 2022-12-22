@@ -31,7 +31,7 @@ class DeliverooPriceController():
                 post_code_for_search = row['post_code']
                 city = row['city']
                 function(self, url, post_code_for_search, city)
-            except Exception as ex:
+            except ValueError as ex:
                 print(ex)
         return wrapper
 

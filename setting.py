@@ -16,10 +16,10 @@ DATABASES = {
 
 
 PROXY = {
-    'PROXY_HOST' : '196.18.165.20',
-    'PROXY_PORT' : '8000',
-    'PROXY_USER' : 'qXkJ97',
-    'PROXY_PASS' : 'UjNPey',
+    'PROXY_HOST': '196.18.165.20',
+    'PROXY_PORT': '8000',
+    'PROXY_USER': 'qXkJ97',
+    'PROXY_PASS': 'UjNPey',
 }
 
 
@@ -32,8 +32,8 @@ SELENIUM = {
                         False: 'ie',
                         False: 'edge',
                      }[True],
-    # 'path': Path.cwd() / r'chromedriver',
-    'path': Path.cwd() / r'yandexdriver',
+    'path': Path.cwd() / r'chromedriver',
+    # 'path': Path.cwd() / r'yandexdriver',
     # 'path': Path.cwd() / r'geckodriver',
     'options':
         {
@@ -48,8 +48,11 @@ SELENIUM = {
             # 'language' :"--lang=en-nz",
             # 'certificate-errors': '--ignore-certificate-errors',
             # 'ssl': '--ignore-ssl-errors=yes',
-            'path_proxy_plugin_file': Path.cwd() / r'proxy_auth_plugin.zip',
-        }
+            # 'proxy':'--proxy-server=196.18.165.20:8000',
+        },
+    'extension': {
+        'path_proxy_plugin_file': Path.cwd() / r'proxy_auth_plugin.zip',
+    },
 }
 
 EXPERIMENTAL_OPTION_SELENIUM = {

@@ -49,7 +49,9 @@ class DeliverooPriceParser():
         options = Options()
         tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
         path = setting.SELENIUM['path']
-
+        options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
+        print(setting.SELENIUM['extension']['path_proxy_plugin_file'])
+        time.sleep(1)
         driver = webdriver.Chrome(chrome_options=options, executable_path=path)
         time.sleep(3)
 
