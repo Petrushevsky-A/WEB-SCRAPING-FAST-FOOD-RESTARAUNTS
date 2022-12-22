@@ -225,17 +225,6 @@ class DominosParser():
             return 'error'
 
     def find(self, index, xpath_collections, attribute = 'innerHTML'):
-        # data_set = []
-        # for xpath in xpath_collections:
-        #     try:
-        #         html = self.cards[index].find_element(By.XPATH, xpath).get_attribute('innerHTML')
-        #         print('='*33)
-        #         print(f'html {html}')
-        #         print('='*33)
-        #         data_set.extend([html])
-        #     except:
-        #         data_set.extend(['error'])
-        # return data_set
         data_set = ''
         for xpath in xpath_collections:
             try:

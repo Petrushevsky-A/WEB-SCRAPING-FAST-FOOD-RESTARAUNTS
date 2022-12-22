@@ -15,19 +15,11 @@ DATABASES = {
 }
 
 
-PROXY_SELENIUMWIRE = {
-    'proxy': {
-        # irland
-        # 'http': f'http://5AcmYPMAn:fLydRaWbd@91.239.213.181:63184',
-        # 'https': f'https://5AcmYPMAn:fLydRaWbd@91.239.213.181:63184',
-
-        # uk 196.18.165.20
-        # qXkJ97
-        # UjNPey
-        # 8000
-        # 'http': f'http://qXkJ97:UjNPey@196.18.165.20:8000',
-        'https': f'https://qXkJ97:UjNPey@196.18.165.20:8000',
-    },
+PROXY = {
+    'PROXY_HOST' : '196.18.165.20',
+    'PROXY_PORT' : '8000',
+    'PROXY_USER' : 'qXkJ97',
+    'PROXY_PASS' : 'UjNPey',
 }
 
 
@@ -56,6 +48,7 @@ SELENIUM = {
             # 'language' :"--lang=en-nz",
             # 'certificate-errors': '--ignore-certificate-errors',
             # 'ssl': '--ignore-ssl-errors=yes',
+            'path_proxy_plugin_file': Path.cwd() / r'proxy_auth_plugin.zip',
         }
 }
 

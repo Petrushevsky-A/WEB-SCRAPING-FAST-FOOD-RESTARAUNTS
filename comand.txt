@@ -1,0 +1,7 @@
+
+
+adb kill-server
+adb start-server
+./emulator -list-avd
+./Appium-Inspector-linux-2022.11.1.AppImage
+./Appium-Server-GUI-linux-1.22.3-4.AppImage --in-process-gpu
