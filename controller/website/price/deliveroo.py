@@ -18,7 +18,7 @@ class DeliverooPriceController():
             pool.map(self.scraping, data_for_scraping)
 
     def get_data_for_scraping(self) -> pd.DataFrame:
-        for df in DataBase().get_table('deliveroo_list_urls', chunksize=100):
+        for df in DataBase().get_table('deliveroo_list_urls_copy1', chunksize=100):
             yield df
 
 
@@ -58,35 +58,42 @@ class DeliverooPriceController():
 
                 category = parser.get_category(card)
 
-                data ={
-                        'start_date': date,
-                        'end_date': date,
-                        'brand': 'Deliveroo',
-                        'address': address,
-                        'city': city,
-                        'post_code': post_code,
-                        'segment': '',
-                        'category': category,
-                        'category_2': '',
-                        'category_3': '',
-                        'category_4': '',
-                        'item': title_item,
-                        'source': 'https://deliveroo.co.uk',
-                        'region': 'UK',
-                        'price': price,
-                        'status': 'on',
-                        'picture': image_url,
-                        'html_cards': html_card,
-                        'post_code_address': post_code_for_search,
-                        'description': description,
-                        'calories': calories,
-                        'url': url,
-                    }
+                parser.modal_window(card)
+
+                print(f'base price     ===============================================  {parser.base_price}')
+                print(f'price     ===============================================  {parser.prices}')
+                print(f'name size     ===============================================  {parser.sizes}')
+
+                for price, size in [[(parser.base_price, '')], zip(parser.prices, parser.sizes)][[parser.base_price]<parser.prices]:
+                    data ={
+                            'start_date': date,
+                            'end_date': date,
+                            'brand': 'Deliveroo',
+                            'address': address,
+                            'city': city,
+                            'post_code': post_code,
+                            'segment': '',
+                            'category': category,
+                            'category_2': size,
+                            'category_3': '',
+                            'category_4': '',
+                            'item': title_item,
+                            'source': 'https://deliveroo.co.uk',
+                            'region': 'UK',
+                            'price': price,
+                            'status': 'on',
+                            'picture': image_url,
+                            'html_cards': html_card,
+                            'post_code_address': post_code_for_search,
+                            'description': description,
+                            'calories': calories,
+                            'url': url,
+                        }
 
 
-                data_frame = pd.DataFrame(data, index=[0])
+                    data_frame = pd.DataFrame(data, index=[0])
 
-                self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS')
+                    self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS_22222')
 
 
     def to_stg_db(self, data_frame, name_stg_table):

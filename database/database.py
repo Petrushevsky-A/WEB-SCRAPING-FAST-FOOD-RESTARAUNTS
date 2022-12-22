@@ -27,9 +27,11 @@ class DataBase():
 
 
     def get_table(self, name_table, chunksize=100):
+        name_table = name_table.lower()
         yield pd.read_sql_table(name_table, self.connect_db, chunksize=chunksize)
 
 
     def to_stg_table(self, data_frame: pd.DataFrame, name_stg_table: str):
+        name_stg_table = name_stg_table.lower()
         data_frame.to_sql(name_stg_table, self.connect_db, if_exists='append', index=False)
         return True

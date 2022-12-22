@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.alert import Alert
 
 
 import time
@@ -21,6 +20,11 @@ class DeliverooPriceParser():
         self.driver = None
         self.cards = None
 
+        self.base_price = None
+        self.sizes = []
+        self.prices = []
+
+        self.sizes_button = None
 
     def __enter__(self):
         # Запуск браузера
@@ -30,8 +34,7 @@ class DeliverooPriceParser():
         self.open_url(self.url)
         time.sleep(3)
 
-
-        time.sleep(3333)
+        # time.sleep(3333)
 
         # Подверджает куки
         self.accept_click()
@@ -43,6 +46,7 @@ class DeliverooPriceParser():
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.driver.close()
         self.driver.quit()
+
 
 
     def run_browser(self):
@@ -59,6 +63,7 @@ class DeliverooPriceParser():
 
 
     def open_url(self, url):
+        url = r"https://deliveroo.co.uk/menu/London/shepherd's-bush/12546-starbucks-shepherds-bush-57-uxbridge-r?day=today&geohash=gcpv4bwhsn3n&time=ASAP"
         self.driver.get(url=url)
         time.sleep(5)
 
@@ -73,6 +78,10 @@ class DeliverooPriceParser():
     def scrolling_page(self, card):
         self.driver.execute_script("arguments[0].scrollIntoView();", card)
         time.sleep(0.2)
+        self.base_price = 0
+        self.sizes = []
+        self.prices = []
+
 
     def get_item_cards(self):
         cards = self.driver.find_elements(By.XPATH,  r'//li/div[contains(@class, "MenuItemCard")]')
@@ -117,9 +126,11 @@ class DeliverooPriceParser():
         try:
             item = card.find_element(By.XPATH, xpath)
             price = item.text.replace('£', '')
+            self.base_price = float(price)
         except Exception as ex:
             print(ex)
             price = 'Not found'
+            self.base_price = 0
         print(f'price {price}')
         return price
 
@@ -188,3 +199,59 @@ class DeliverooPriceParser():
             print(ex)
             post_code = 'Not found'
         return post_code
+
+
+    def click_card(self, card):
+        try:
+            button = card.find_element(By.XPATH, r'./div')
+            self.driver.execute_script("arguments[0].click();", button)
+            time.sleep(3)
+        except Exception as ex:
+            print(ex)
+
+
+    def modal_window(self, card):
+        # $x('//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button//div[contains(@class, "MenuItemModifiers")]/span')
+        try:
+            self.click_card(card)
+            self.sizes_button = self.driver.find_elements(By.XPATH, '//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button')
+
+
+            print('=' * 33)
+            for size in self.sizes_button:
+                self.get_size_element(size)
+                self.get_prices_modal_windows(size)
+            print('=' * 33)
+        except Exception as ex:
+            print(ex)
+        else:
+            time.sleep(1)
+            ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
+
+    def get_size_element(self, size):
+        try:
+            xpath = r'.//p'
+            size_name_element = size.find_element(By.XPATH, xpath)
+            size_name = size_name_element.text
+
+            print(f'size_name.text {size_name}')
+        except Exception as ex:
+            print(ex)
+            size_name = ''
+        finally:
+            self.sizes.append(size_name)
+
+    def get_prices_modal_windows(self, size):
+        try:
+            xpath = r'.//span[contains(text(), "+")]'
+            price_element = size.find_element(By.XPATH, xpath)
+            price = price_element.text.replace('+£', '')
+            price = float(price)
+
+            print(f'price size {price}')
+        except Exception as ex:
+            print(ex)
+            price = 0
+        finally:
+            self.prices.append(self.base_price+price)
+
