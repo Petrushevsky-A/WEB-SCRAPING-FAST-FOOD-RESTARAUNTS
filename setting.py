@@ -14,14 +14,21 @@ DATABASES = {
     'database': 'scraping_reustaran',
 }
 
+# London
+# PROXY = {
+#     'PROXY_HOST': '196.18.165.20',
+#     'PROXY_PORT': '8000',
+#     'PROXY_USER': 'qXkJ97',
+#     'PROXY_PASS': 'UjNPey',
+# }
 
+# Dublin
 PROXY = {
-    'PROXY_HOST': '196.18.165.20',
-    'PROXY_PORT': '8000',
-    'PROXY_USER': 'qXkJ97',
-    'PROXY_PASS': 'UjNPey',
+'PROXY_HOST': '91.239.213.181',
+'PROXY_PORT': '63184',
+'PROXY_USER': '5AcmYPMAn',
+'PROXY_PASS': 'fLydRaWbd',
 }
-
 
 SELENIUM = {
     'browser_type': {

@@ -1,4 +1,4 @@
-from parsers.price.dominos.dominos import DominosParser
+from parsers.website.price.dominos.dominos import DominosParser
 from database.database import DataBase
 
 from itertools import repeat

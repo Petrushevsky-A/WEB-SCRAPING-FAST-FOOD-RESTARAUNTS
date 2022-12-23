@@ -1,4 +1,4 @@
-from parsers.promo.dominos.dominos import DominosPromoParser
+from parsers.website.promo.dominos.dominos import DominosPromoParser
 from database.database import DataBase
 
 import time

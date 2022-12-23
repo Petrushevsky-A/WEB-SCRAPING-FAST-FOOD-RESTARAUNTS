@@ -55,7 +55,9 @@ class DominosParser():
         options = Options()
         tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
         path = setting.SELENIUM['path']
+        options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
         driver = webdriver.Chrome(chrome_options=options, executable_path=path)
+        time.sleep(3333)
         return driver
 
     def open_url(self, url):
