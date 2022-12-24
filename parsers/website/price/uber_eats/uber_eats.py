@@ -15,12 +15,13 @@ import setting
 
 class UberEatsPriceParser():
 
-    def __init__(self, url):
+    def __init__(self, post_code, brand):
         self.driver = None
-        self.url = url
+        self.url = 'url'
+        self.post_code = post_code
+        self.brand = brand
 
         self.address = ''
-        self.title_item
         self.image_url = ''
 
         self.base_price = None
@@ -73,7 +74,7 @@ class UberEatsPriceParser():
         # set search request
         xpath = r'//input[@name="searchTerm"]'
         input = self.driver.find_element(By.XPATH, xpath)
-        input.send_keys('W1C')
+        input.send_keys(self.post_code)
         time.sleep(1)
 
         # click first
@@ -87,7 +88,7 @@ class UberEatsPriceParser():
 
         xpath = r'//input'
         input = self.driver.find_element(By.XPATH, xpath)
-        input.send_keys('starbuck')
+        input.send_keys(self.brand)
         time.sleep(2)
 
         xpath = r'//li[@id = "search-suggestions-typeahead-item-0"]/a'

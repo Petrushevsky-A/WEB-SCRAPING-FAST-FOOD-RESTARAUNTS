@@ -36,7 +36,16 @@ class UberEatsPriceController():
             'LS1 1UR',
             'M2 5DB',
         ]
-        brand = []
+        brand = [
+            'Pret',
+            'Subway',
+            'KFC',
+            'Costa',
+            'McDonalds',
+            'Burger King',
+            'Starbucks',
+        ]
+
         for i in product(post_code, brand):
             yield i
 
