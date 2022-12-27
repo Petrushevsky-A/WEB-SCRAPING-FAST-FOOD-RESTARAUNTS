@@ -7,7 +7,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import ActionChains
 
-
 import time
 
 import setting
@@ -30,24 +29,23 @@ class UberEatsPriceParser():
 
         self.sizes_button = None
 
-
-
     def __enter__(self):
         options = Options()
         tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
         path = setting.SELENIUM['path']
         options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
+        # prefs = {"profile.default_content_setting_values.geolocation": 2}
+        # options.add_experimental_option("prefs", prefs)
         self.driver = webdriver.Chrome(chrome_options=options, executable_path=path)
 
-
-        # self.open_url(self.url)
+        # self.open_url('')
         self.open_place()
+        # time.sleep(3333)
         self.close_modal_window()
 
-        self.get_address()
+        # self.get_address()
 
-
-        time.sleep(3333)
+        # time.sleep(3333)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -60,12 +58,11 @@ class UberEatsPriceParser():
 
     def close_modal_window(self):
         (ActionChains(self.driver)
-            .send_keys(Keys.ESCAPE)
-            .send_keys(Keys.ESCAPE)
-            .send_keys(Keys.ESCAPE)
-            .perform())
+         .send_keys(Keys.ESCAPE)
+         .send_keys(Keys.ESCAPE)
+         .send_keys(Keys.ESCAPE)
+         .perform())
         time.sleep(1)
-
 
     def open_place(self):
         url = r'https://www.ubereats.com/'
@@ -75,7 +72,7 @@ class UberEatsPriceParser():
         xpath = r'//input[@name="searchTerm"]'
         input = self.driver.find_element(By.XPATH, xpath)
         input.send_keys(self.post_code)
-        time.sleep(1)
+        time.sleep(2)
 
         # click first
         # xpath = r'//ul[@id="location-typeahead-home-menu"]/li[1]'
@@ -84,21 +81,26 @@ class UberEatsPriceParser():
         # time.sleep(2)
 
         input.send_keys(Keys.ENTER)
-        time.sleep(3)
+        time.sleep(7)
 
         xpath = r'//input'
         input = self.driver.find_element(By.XPATH, xpath)
         input.send_keys(self.brand)
-        time.sleep(2)
+        time.sleep(4)
 
         xpath = r'//li[@id = "search-suggestions-typeahead-item-0"]/a'
         hint = self.driver.find_element(By.XPATH, xpath)
         hint.click()
+        time.sleep(6)
 
-
-        time.sleep(3333)
-
-        return
+    def scrolling_to_card(self, id_card):
+        time.sleep(2)
+        xpath = rf'(//li/ul/li)[{id_card}]'
+        card = self.driver.find_element(By.XPATH, xpath)
+        self.driver.execute_script("scroll(0, 250);")
+        time.sleep(1)
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", card)
+        time.sleep(0.2)
 
     def accept_click(self):
         try:
@@ -106,23 +108,38 @@ class UberEatsPriceParser():
             time.sleep(1)
         except Exception as ex:
             print(ex)
-    def get_items(self):
-        '//li/ul/li'
-        print(123)
 
-    def open_item_cards(self):
-        xpath = r'//*[text() = "Quick view"]'
-        self.cards = self.driver.find_elements(By.XPATH, xpath)
+    def get_count_items(self):
+        print('get count items card')
 
+        xpath = r'//li/ul/li'
+        cards = self.driver.find_elements(By.XPATH, xpath)
+        time.sleep(1)
+        count_cards = len(cards)
+        return count_cards
 
+    def open_item_card(self, id_card):
+
+        xpath = rf'(//li/ul/li)[{id_card}]'
+        card = self.driver.find_element(By.XPATH, xpath)
+        card.click()
+        print('open card')
+        time.sleep(4)
+        # try:
+        #     xpath = r'//*[text() = "Quick view"]'
+        #     self.cards = self.driver.find_elements(By.XPATH, xpath)
+        # except Exception as ex:
+        #     print(ex)
+
+    def navigate_back(self):
+        self.driver.back()
+        time.sleep(7)
 
     def get_address(self):
         self.open_more_info()
-        xpath =r'//div[@role="dialog"]//button//div[contains(text(), ",")]'
+        xpath = r'//div[@role="dialog"]//button//div[contains(text(), ",")]'
         self.address = self.driver.find_element(By.XPATH, xpath).text
         self.close_modal_window()
-
-
 
     def open_more_info(self):
         try:
@@ -131,11 +148,8 @@ class UberEatsPriceParser():
         except:
             pass
 
-
     # ========================================================================================================
     # parse size
-
-
 
     def quik_button(self, card):
         xpath = r'.//*[text() = "Quick view"]'
@@ -154,8 +168,6 @@ class UberEatsPriceParser():
             category = 'Not found'
         finally:
             return category
-
-
 
     def get_image_url(self):
         xpath = r'//div[@role="dialog"]//img'
@@ -186,6 +198,7 @@ class UberEatsPriceParser():
             title = 'Not found'
         finally:
             return title
+
     def get_price(self, card):
         xpath = './/div[@role="dialog"]//*[contains(text(), "£")]'
         try:
@@ -196,14 +209,13 @@ class UberEatsPriceParser():
         finally:
             return price
 
-
-
     # temp sctipt
     def modal_window(self, card):
         # $x('//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button//div[contains(@class, "MenuItemModifiers")]/span')
         try:
             self.click_card(card)
-            self.sizes_button = self.driver.find_elements(By.XPATH, '//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button')
+            self.sizes_button = self.driver.find_elements(By.XPATH,
+                                                          '//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button')
 
             if not self.sizes_button:
                 raise
@@ -245,13 +257,15 @@ class UberEatsPriceParser():
             print(ex)
             price = 0
         finally:
-            self.prices.append(self.base_price+price)
-
+            self.prices.append(self.base_price + price)
 
     # ==========================================================================================================
-    def scrolling_page(self, card):
-        self.driver.execute_script("arguments[0].scrollIntoView();", card)
-        time.sleep(0.2)
+    def scrolling_page(self):
+        time.sleep(15)
+        for i in range(30):
+            print('Page down')
+            ActionChains(self.driver).send_keys(Keys.PAGE_DOWN).perform()
+            time.sleep(1)
 
     # делаю
     def get_calories(self):

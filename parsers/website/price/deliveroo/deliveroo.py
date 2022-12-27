@@ -63,7 +63,7 @@ class DeliverooPriceParser():
 
 
     def open_url(self, url):
-        url = r"https://deliveroo.co.uk/menu/London/shepherd's-bush/12546-starbucks-shepherds-bush-57-uxbridge-r?day=today&geohash=gcpv4bwhsn3n&time=ASAP"
+        # url = r'https://ideas.com/revenue-management/'
         self.driver.get(url=url)
         time.sleep(5)
 

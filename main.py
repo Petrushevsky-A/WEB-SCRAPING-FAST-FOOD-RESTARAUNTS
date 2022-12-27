@@ -6,7 +6,7 @@ from controller.website.promo.uber_eats import UberEatsPromoController
 from controller.website.price.uber_eats import UberEatsPriceController
 
 if __name__ == '__main__':
-    ProxyPlugin()
+    # ProxyPlugin()
     # DeliverooPriceController()
 
     # not work proxy

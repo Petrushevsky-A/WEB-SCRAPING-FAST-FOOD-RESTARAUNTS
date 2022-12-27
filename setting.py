@@ -14,7 +14,7 @@ DATABASES = {
     'database': 'scraping_reustaran',
 }
 
-# London
+# London ip4
 PROXY = {
     'PROXY_HOST': '196.18.165.20',
     'PROXY_PORT': '8000',
@@ -22,7 +22,7 @@ PROXY = {
     'PROXY_PASS': 'UjNPey',
 }
 
-# Dublin
+# Dublin ip4
 # PROXY = {
 # 'PROXY_HOST': '91.239.213.181',
 # 'PROXY_PORT': '63184',
@@ -31,14 +31,6 @@ PROXY = {
 # }
 
 SELENIUM = {
-    'browser_type': {
-                        True: 'chrome',
-                        False: 'yandex',
-                        False: 'opera',
-                        False: 'safari',
-                        False: 'ie',
-                        False: 'edge',
-                     }[True],
     'path': Path.cwd() / r'chromedriver',
     # 'path': Path.cwd() / r'yandexdriver',
     # 'path': Path.cwd() / r'geckodriver',
@@ -90,3 +82,5 @@ APPIUM = {
     'path_emulator': r'/home/oem/Android/Sdk/tools',
     'commands_run_emulator':'',
 }
+
+CONCURRENCY = 5

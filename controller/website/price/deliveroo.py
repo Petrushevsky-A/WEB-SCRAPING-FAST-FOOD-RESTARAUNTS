@@ -18,7 +18,7 @@ class DeliverooPriceController():
             pool.map(self.scraping, data_for_scraping)
 
     def get_data_for_scraping(self) -> pd.DataFrame:
-        for df in DataBase().get_table('deliveroo_list_urls_copy1', chunksize=100):
+        for df in DataBase().get_table('deliveroo_list_urls', chunksize=100):
             yield df
 
 
@@ -96,7 +96,7 @@ class DeliverooPriceController():
 
                     data_frame = pd.DataFrame(data, index=[0])
 
-                    self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS_OLOLOSHA')
+                    self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS')
 
 
     def to_stg_db(self, data_frame, name_stg_table):
