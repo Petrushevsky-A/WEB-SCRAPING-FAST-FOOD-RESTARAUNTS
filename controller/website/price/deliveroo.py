@@ -31,7 +31,7 @@ class DeliverooPriceController():
                 post_code_for_search = row['post_code']
                 city = row['city']
                 function(self, url, post_code_for_search, city)
-            except ValueError as ex:
+            except Exception as ex:
                 print(ex)
         return wrapper
 
@@ -41,10 +41,15 @@ class DeliverooPriceController():
         date = datetime.now().strftime("%d.%m.%Y")
 
         with DeliverooPriceParser(url = url) as parser:
+            name_place = parser.get_name_place()
+            brand = parser.get_brand()
 
             address = parser.get_address(city)
             post_code = parser.get_post_code(address)
 
+
+
+            # time.sleep(3333)
             cards = parser.get_item_cards()
             for card in cards:
                 parser.scrolling_page(card)
@@ -65,13 +70,12 @@ class DeliverooPriceController():
                 print(f'name size     ===============================================  {parser.sizes}')
 
 
-
                 # for price, size in [[(parser.base_price, '')], zip(parser.prices, parser.sizes)][[parser.base_price]<parser.prices]:
                 for price, size in zip(parser.prices, parser.sizes):
                     data ={
                             'start_date': date,
-                            'end_date': date,
-                            'brand': 'Deliveroo',
+                            'end_date': '',
+                            'brand': brand,
                             'address': address,
                             'city': city,
                             'post_code': post_code,
@@ -90,6 +94,7 @@ class DeliverooPriceController():
                             'post_code_address': post_code_for_search,
                             'description': description,
                             'calories': calories,
+                            'name_place': name_place,
                             'url': url,
                         }
 

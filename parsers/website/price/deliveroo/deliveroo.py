@@ -26,6 +26,8 @@ class DeliverooPriceParser():
 
         self.sizes_button = None
 
+        self.name_place = None
+
     def __enter__(self):
         # Запуск браузера
         self.driver = self.run_browser()
@@ -257,4 +259,29 @@ class DeliverooPriceParser():
             price = 0
         finally:
             self.prices.append(self.base_price+price)
+
+
+    def get_name_place(self):
+        try:
+            self.name_place = self.driver.find_element(By.XPATH, r'//h1').text
+        except Exception as ex:
+            print(ex)
+            self.name_place = 'Not found'
+
+        print(self.name_place)
+        return self.name_place
+
+
+    def get_brand(self):
+        try:
+            brand = self.name_place.split('-')[0].strip()
+        except Exception as ex:
+            print(ex)
+            brand = 'Not found'
+
+        print(brand)
+        return brand
+
+
+
 

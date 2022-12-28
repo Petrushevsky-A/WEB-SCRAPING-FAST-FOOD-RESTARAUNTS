@@ -96,8 +96,6 @@ class DominosCleaner():
             except:
                 item = 'Not found'
 
-
-
             try:
                 price = select.split('£')[1]
             except:
