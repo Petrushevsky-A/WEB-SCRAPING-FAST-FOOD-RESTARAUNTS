@@ -42,8 +42,6 @@ class UberEatsPriceController():
 
     @__start_scraping
     def scraping(self, url, post_code_for_search, city):
-        # @__start_scraping
-        # def scraping(self, url, post_code_for_search, city):
             date = datetime.now().strftime("%d.%m.%Y")
             with UberEatsPriceParser(url) as parser:
 
