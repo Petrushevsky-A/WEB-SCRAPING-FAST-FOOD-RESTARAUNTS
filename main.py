@@ -7,10 +7,10 @@ from controller.website.price.uber_eats import UberEatsPriceController
 
 if __name__ == '__main__':
     # ProxyPlugin()
-    DeliverooPriceController()
+    # DeliverooPriceController()
 
     # not work proxy
     # DominosController()
 
     # UberEatsPromoController()
-    # UberEatsPriceController()
+    UberEatsPriceController()

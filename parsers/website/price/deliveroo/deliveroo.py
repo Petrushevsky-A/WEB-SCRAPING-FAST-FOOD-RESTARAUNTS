@@ -213,7 +213,6 @@ class DeliverooPriceParser():
 
 
     def modal_window(self, card):
-        # $x('//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button//div[contains(@class, "MenuItemModifiers")]/span')
         try:
             self.click_card(card)
             self.sizes_button = self.driver.find_elements(By.XPATH, '//div[@class="ReactModalPortal"]/div//p[contains(text(),"Size")]/following-sibling::div//button')
