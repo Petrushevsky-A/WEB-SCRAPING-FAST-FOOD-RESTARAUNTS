@@ -7,16 +7,13 @@ class ProxyPlugin():
 
     def __init__(self):
         self.PROXY_HOST, self.PROXY_PORT, self.PROXY_USER, self.PROXY_PASSWORD = setting.PROXY.values()
-
-
-
         self.generate_plugin_scripts()
         self.generate_plugin_file()
 
 
     def generate_plugin_scripts(self):
 
-        #
+
 
         self.manifest_json = """
         {
