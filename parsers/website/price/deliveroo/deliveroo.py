@@ -219,6 +219,7 @@ class DeliverooPriceParser():
 
             if not self.sizes_button:
                 raise
+
             print('=' * 33)
             for size in self.sizes_button:
                 self.get_size_element(size)

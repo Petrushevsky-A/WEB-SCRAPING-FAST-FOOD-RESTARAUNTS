@@ -24,23 +24,17 @@ class DominosParser():
         self.option_text = []
 
     def __enter__(self):
-        # Запуск браузера
         self.driver = self.run_browser()
         time.sleep(2)
-        # открывает ссылку
         self.open_url(self.url)
         time.sleep(3)
 
-        # Подверджает куки
         self.accept_click()
         time.sleep(1)
-        # подставляет пост код в строку поиска
         self.input_post_code()
         time.sleep(2)
-        # Выбирает первый элемент списка после поиска
         self.click_first_button_list()
         time.sleep(1)
-        # Закрывает модальное окно, если есть необходимость
         self.close_popup()
         time.sleep(2)
         return self
@@ -55,9 +49,10 @@ class DominosParser():
         options = Options()
         tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
         path = setting.SELENIUM['path']
-        options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
+
+        # I commented out the dominos proxy, since a different proxy is needed
+        # options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
         driver = webdriver.Chrome(chrome_options=options, executable_path=path)
-        time.sleep(3333)
         return driver
 
     def open_url(self, url):

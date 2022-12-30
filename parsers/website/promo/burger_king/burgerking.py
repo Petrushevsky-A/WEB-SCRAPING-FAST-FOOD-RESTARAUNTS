@@ -13,6 +13,7 @@ from multiprocessing import Pool
 from lxml import etree
 from database.database import DataBase
 
+import setting
 
 def click_accept(driver):
     try:
@@ -26,18 +27,10 @@ def click_accept(driver):
 
 def run_browser():
     options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-
-    path = r'chromedriver.exe'
+    tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    path = setting.SELENIUM['path']
 
     url = 'https://www.burgerking.co.uk/rewards/offers'
-    path = r'chromedriver.exe'
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
     time.sleep(2)
     driver.get(url=url)
@@ -64,16 +57,19 @@ def start_burgerking_promo():
 
     list_cards_deals = driver.find_elements(By.XPATH, '//div[@data-testid="browsing-panel"]//li')
     for id, val in enumerate(list_cards_deals[:-1], 1):
-        driver.execute_script("arguments[0].scrollIntoView();", val)
-        time.sleep(0.1)
-        head = "".join([i.text for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//h3')])
-        text = "".join([i.text for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//p')])
-        image = [i.get_attribute('srcset').split(',')[0][:-4] for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//div[picture][2]//source')][0]
-        print(head)
-        print(text)
-        print(image)
-        print('====================')
-        data.append([date,post_code,city,head,text,image])
+        try:
+            driver.execute_script("arguments[0].scrollIntoView();", val)
+            time.sleep(0.1)
+            head = "".join([i.text for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//h3')])
+            text = "".join([i.text for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//p')])
+            image = [i.get_attribute('srcset').split(',')[0][:-4] for i in driver.find_elements(By.XPATH, f'//div[@data-testid="browsing-panel"]//li[{id}]//div[picture][2]//source')][0]
+            print(head)
+            print(text)
+            print(image)
+            print('====================')
+            data.append([date,post_code,city,head,text,image])
+        except:
+            continue
 
     columns = {
         0: 'date',

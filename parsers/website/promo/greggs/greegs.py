@@ -9,6 +9,8 @@ import pandas as pd
 from database.database import DataBase
 import time
 
+import setting
+
 def click_accept(driver):
     try:
         driver.find_element(By.XPATH, '//button[contains(text(), "Accept")]').click()
@@ -21,18 +23,10 @@ def click_accept(driver):
 
 def run_browser():
     options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-
-    path = r'chromedriver.exe'
-
+    tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    path = setting.SELENIUM['path']
+    options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
     url = 'https://www.greggs.co.uk/news'
-    path = r'chromedriver.exe'
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
     time.sleep(2)
     driver.get(url=url)

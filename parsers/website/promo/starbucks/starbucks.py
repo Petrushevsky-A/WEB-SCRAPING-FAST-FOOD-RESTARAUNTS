@@ -16,6 +16,8 @@ from multiprocessing import Pool
 from lxml import etree
 
 from database.database import DataBase
+import setting
+
 
 # Подтверждение в модальном окне
 def click_accept(driver):
@@ -30,20 +32,13 @@ def click_accept(driver):
 # Запуск браузера
 def run_browser():
     options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36")
-    options.add_argument("--disable-blink-features=AutomationControlled")
+    tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    path = setting.SELENIUM['path']
+    options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
 
-    path = r'chromedriver.exe'
-
-    url = 'https://www.starbucks.co.uk/rewards'
-    path = r'chromedriver.exe'
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
     time.sleep(2)
+    url = 'https://www.starbucks.co.uk/rewards'
     driver.get(url=url)
     time.sleep(5)
     return driver

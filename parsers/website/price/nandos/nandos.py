@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
 from database.database import DataBase
-
+import setting
 
 def get_product(category, name, price, picture):
     product = {
@@ -144,25 +144,16 @@ def start():
     driver.close()
     driver.quit()
 
-    # data = sum(data, [])
     print(data)
     data_frame = pd.DataFrame(data)
-    # pd_data.to_excel(f'tables/Nandos_Price_{datetime.now().strftime("%d.%m.%Y")}.xlsx')
 
     DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_nandos_price')
 
 def configuring_driver():
     options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
-    # options.add_argument("--window-size=1920,1080")
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.53 Safari/537.36")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-
-    path = r'chromedriver.exe'
+    tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    path = setting.SELENIUM['path']
+    # options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
 
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
     return driver

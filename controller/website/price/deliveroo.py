@@ -22,7 +22,7 @@ class DeliverooPriceController():
             yield df
 
 
-    def start_scraping(function):
+    def __start_scraping(function):
         @wraps(function)
         def wrapper(self, data):
             try:
@@ -36,7 +36,7 @@ class DeliverooPriceController():
         return wrapper
 
 
-    @start_scraping
+    @__start_scraping
     def scraping(self, url, post_code_for_search, city):
         date = datetime.now().strftime("%d.%m.%Y")
 
@@ -100,7 +100,6 @@ class DeliverooPriceController():
 
 
                     data_frame = pd.DataFrame(data, index=[0])
-
                     self.to_stg_db(data_frame, 'STG_DELIVEROO_HTML_CARDS')
 
 

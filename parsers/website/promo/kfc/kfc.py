@@ -8,12 +8,12 @@ from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
 from database.database import DataBase
-
+import setting
 
 def promo_position(title, description, picture):
     promo = {
         'start_date': datetime.now().strftime("%d.%m.%Y"),
-        'end_date': datetime.now().strftime("%d.%m.%Y"),
+        'end_date': '',
         'brand': 'KFC',
         'segment': '',
         'city': '',
@@ -38,7 +38,7 @@ def promo_position(title, description, picture):
 class Parse:
     def __init__(self):
         self.data = list()
-        self.driver = configuring_driver()
+        self.driver = self.configuring_driver()
 
     def parse(self):
 
@@ -81,22 +81,14 @@ class Parse:
         DataBase().to_stg_table(data_frame=data_frame, name_stg_table='stg_kfc_promo')
 
 
-def configuring_driver():
-    options = Options()
-    # options.add_argument("--headless")
-    # options.add_argument("--disable-extensions")
-    # options.add_argument("--window-size=1920,1080")
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        r"user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.95 Safari/537.36")
-    # options.add_argument("--disable-blink-features=AutomationControlled")
+    def configuring_driver(self):
+        options = Options()
+        tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+        path = setting.SELENIUM['path']
+        options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
+        driver = webdriver.Chrome(chrome_options=options, executable_path=path)
 
-    path = r'chromedriver.exe'
-
-    driver = webdriver.Chrome(chrome_options=options, executable_path=path)
-
-    return driver
+        return driver
 
 
 def start_kfc_promo():

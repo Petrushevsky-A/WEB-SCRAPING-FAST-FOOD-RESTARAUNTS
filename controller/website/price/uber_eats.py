@@ -17,7 +17,7 @@ class UberEatsPriceController():
     def __init__(self):
         data_for_scraping = next(next(self.get_data_for_scraping())).iterrows()
 
-        with Pool(processes=1) as pool:
+        with Pool(processes=3) as pool:
             pool.map(self.scraping, data_for_scraping)
 
     def get_data_for_scraping(self) -> pd.DataFrame:

@@ -10,6 +10,7 @@ from lxml import etree
 import pandas as pd
 import time
 
+import setting
 
 from database.database import DataBase
 
@@ -236,16 +237,11 @@ def set_post_code(post_code, driver):
 
 def run_browser():
     options = Options()
-    options.add_argument("--start-maximized")
-    options.add_argument("--lang=en-nz")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-
-    path = r'chromedriver.exe'
+    tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    path = setting.SELENIUM['path']
+    options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
 
     url = 'https://www.just-eat.co.uk/offers'
-    path = r'chromedriver.exe'
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
     time.sleep(2)
     driver.get(url=url)

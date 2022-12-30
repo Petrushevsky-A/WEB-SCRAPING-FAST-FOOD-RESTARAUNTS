@@ -34,4 +34,3 @@ class DataBase():
     def to_stg_table(self, data_frame: pd.DataFrame, name_stg_table: str):
         name_stg_table = name_stg_table.lower()
         data_frame.to_sql(name_stg_table, self.connect_db, if_exists='append', index=False)
-        return True

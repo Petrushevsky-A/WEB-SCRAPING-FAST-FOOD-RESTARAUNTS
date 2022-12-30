@@ -10,16 +10,8 @@ import requests
 import numpy as np
 from multiprocessing import Pool
 from database.database import DataBase
+import setting
 
-options = Options()
-# options.add_argument("--headless")
-# options.add_argument("--disable-extensions")
-options.add_argument("--start-maximized")
-options.add_argument("--lang=en-nz")
-options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5249.61 Safari/537.36")
-options.add_argument("--disable-blink-features=AutomationControlled")
-
-path = r'chromedriver.exe'
 
 
 
@@ -27,6 +19,10 @@ path = r'chromedriver.exe'
 def parse(arg):
     url, brand = arg
     print(f"PARSED {url}")
+    options = Options()
+    tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    path = setting.SELENIUM['path']
+    options.add_extension(setting.SELENIUM['extension']['path_proxy_plugin_file'])
     driver = webdriver.Chrome(chrome_options=options, executable_path=path)
     driver.get(url=url)
     time.sleep(3)
@@ -46,11 +42,11 @@ def parse(arg):
     except:
         driver.close()
         driver.quit()
-
-        temp = url.split('/')[-2]
-        pd.DataFrame({
-            'url': [url],
-        }).to_excel(f'ERROR_{brand}_{temp}_result_menu_price.xlsx')
+        #
+        # temp = url.split('/')[-2]
+        # pd.DataFrame({
+        #     'url': [url],
+        # }).to_excel(f'ERROR_{brand}_{temp}_result_menu_price.xlsx')
         return None
 
     print(url)
@@ -65,12 +61,12 @@ def parse(arg):
     if len(categorys) == 0:
         driver.close()
         driver.quit()
-
-        pd.DataFrame({
-            'brand': [brand],
-            'post_code': [post_code],
-            'url': [url],
-        }).to_excel(f'ERROR_{brand}_{post_code}_result_menu_price.xlsx')
+        #
+        # pd.DataFrame({
+        #     'brand': [brand],
+        #     'post_code': [post_code],
+        #     'url': [url],
+        # }).to_excel(f'ERROR_{brand}_{post_code}_result_menu_price.xlsx')
         return None
 
     date = datetime.now().strftime("%d.%m.%Y")
@@ -147,17 +143,12 @@ def parse(arg):
     }
 
     data_frame = pd.DataFrame(data)
-    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_JUST_EATS_PRICE')
+    DataBase().to_stg_table(data_frame=data_frame, name_stg_table='STG_JUST_EATS_PRICE_OLD')
 
 def start_just_eats_price():
-    # with Pool(processes=5) as p:
-    #     temp = list(zip(urls, brands))[:]
-    #     p.map(parse, zip(urls, brands))
     data = DataBase().get_table('just_eats_list')
     urls_brands = []
     next(next(data)).apply(lambda x: urls_brands.append(tuple(x)), axis=1)
-
-
     with Pool(processes=5) as p:
 
         p.map(parse, urls_brands)

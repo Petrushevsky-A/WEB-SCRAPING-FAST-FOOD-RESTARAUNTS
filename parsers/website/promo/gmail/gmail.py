@@ -15,6 +15,7 @@ from multiprocessing import Pool
 from lxml import etree
 from database.database import DataBase
 
+import setting
 def run_browser():
     # options = Options()
     # options.add_argument("--headless")
@@ -29,6 +30,10 @@ def run_browser():
     # # options.add_argument(r"user-data-dir=C:\Users\qwerty\AppData\Local\Google\Chrome\User Data\Default")
     # path = r'chromedriver.exe'
     #
+
+    # options = Options()
+    # tuple(map(options.add_argument, setting.SELENIUM['options'].values()))
+    # path = setting.SELENIUM['path']
     url = 'https://www.google.com/gmail/about/'
     # path = r'chromedriver.exe'
 
@@ -38,7 +43,6 @@ def run_browser():
     driver = undetected_chrome.Chrome()
     driver.delete_all_cookies()
     time.sleep(2)
-    # driver.get(url=url)
     driver.get(url)
     time.sleep(5)
     return driver
@@ -157,7 +161,6 @@ def read_messeges(driver, list_messeges):
     }
     data = pd.DataFrame(data)
     data_frame = data.rename(columns = columns)
-    # data.to_excel(f"gmail_messeges_{list_messeges}_{date}.xlsx")
     DataBase().to_stg_table(data_frame= data_frame, name_stg_table='STG_GMAIL_PROMO')
 def to_all_mail(driver):
     url = 'https://mail.google.com/mail/u/2/?ogbl#all'
