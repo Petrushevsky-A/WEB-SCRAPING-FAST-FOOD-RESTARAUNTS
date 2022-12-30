@@ -83,4 +83,4 @@ APPIUM = {
     'commands_run_emulator':'',
 }
 
-CONCURRENCY = 5
+# CONCURRENCY = 5
